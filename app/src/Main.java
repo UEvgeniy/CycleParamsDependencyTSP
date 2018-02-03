@@ -1,11 +1,10 @@
-import control.MatrixConverter;
-import io.DatasetLoader;
+import control.BindedData;
+import control.DataBinder;
+import control.TSPConverter;
 import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
-import model.Complexity;
-import model.Dataset;
-import model.TSPMatrix;
-import model.TSPReducedMatrix;
+import model.*;
+
 
 public class Main {
 
@@ -18,10 +17,23 @@ public class Main {
         Dataset<TSPMatrix> datasetMatr = mLoader.load();
         Dataset<Complexity> datasetCompl = cLoader.load();
 
-        // Dataset<TSPReducedMatrix> reduced = MatrixConverter::convertToReducedDataset(datasetMatr);
+        Dataset<TSPReducedMatrix> reduced = TSPConverter.toReducedDataset(datasetMatr);
+
+        DataBinder<TSPReducedMatrix, Complexity> binder = new DataBinder<>(reduced, datasetCompl);
+        BindedData<TSPReducedMatrix, Complexity> lists = binder.bind();
+
+        
+        ReducedMatrixParameter param = Parameters::count;
+        Correlation correlation = new PearsonCorrelation(); // or new SpearmanCorrelation();
 
 
-        System.out.println("TSP will be implemented soon");
+        double result = correlation.count(
+                TSPConverter.toParamsDataset(lists.getFirst(), param),
+                TSPConverter.toDouble(lists.getSecond())
+        );
+
+
+        System.out.println("TSP will be implemented soon " + result);
     }
 
 }
