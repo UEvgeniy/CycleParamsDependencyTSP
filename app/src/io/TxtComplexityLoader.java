@@ -4,7 +4,7 @@ import model.Complexity;
 import model.Dataset;
 
 import java.io.File;
-import java.util.List;
+import java.io.FileNotFoundException;
 
 public class TxtComplexityLoader implements DatasetLoader<Complexity> {
 
@@ -21,7 +21,7 @@ public class TxtComplexityLoader implements DatasetLoader<Complexity> {
     }
 
     @Override
-    public Dataset<Complexity> load() {
+    public Dataset<Complexity> load() throws FileNotFoundException{
         Dataset<Complexity> result = new Dataset<>();
         // todo write complexity loader
         return result;

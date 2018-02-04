@@ -5,6 +5,8 @@ import model.TSPMatrix;
 
 import java.io.File;
 import java.util.List;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
 
 
 public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
@@ -21,9 +23,36 @@ public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
     }
 
     @Override
-    public Dataset<TSPMatrix> load() {
+    public Dataset<TSPMatrix> load() throws FileNotFoundException {
         Dataset<TSPMatrix> result = new Dataset<>();
-        // todo load matrixes
+
+        for (File f : files){
+            readAndAdd(result, f);
+        }
         return result;
+    }
+
+    private void readAndAdd(Dataset<TSPMatrix> dataset, File file) throws FileNotFoundException{
+
+        // todo replace to pattern
+        String[] name = file.getName().split("_");
+        int id = Integer.parseInt(name[2].substring(0, name[2].indexOf('.')));
+        int size = Integer.parseInt(name[1]);
+
+        Scanner s = new Scanner(file);
+        TSPMatrix matrix = new TSPMatrix(size);
+
+        int element = 0;
+
+        while (s.hasNext()){
+            matrix.set((element / size), (element++ % size), s.nextInt());
+        }
+
+        if (element != (size * size)){
+            throw new IllegalArgumentException("File " + name + " has " + element +
+                    " elements in array instead of " + (size * size));
+        }
+
+        dataset.add(id, matrix);
     }
 }
