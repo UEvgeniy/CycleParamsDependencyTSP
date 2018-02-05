@@ -41,6 +41,9 @@ public class TSPMatrix {
         matrix[i][j] = value;
     }
 
+    public int getDimension() {
+        return dimension;
+    }
 
     /*
     Private methods
