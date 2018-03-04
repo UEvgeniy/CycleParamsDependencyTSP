@@ -1,5 +1,6 @@
 package control;
 
+import model.BindedData;
 import model.Dataset;
 
 import java.util.ArrayList;

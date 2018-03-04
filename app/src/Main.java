@@ -1,22 +1,20 @@
-import control.BindedData;
+import model.BindedData;
 import control.DataBinder;
 import control.TSPConverter;
 import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
 import model.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
     public static void main (String[] args) {
-
         example(args);
     }
 
-    static void example(String[] args){
+    private static void example(String[] args){
         // Init location of data files
         File matrFile = new File(args[0]);
         File complFile = new File(args[1]);
@@ -40,12 +38,12 @@ public class Main {
             BindedData<TSPReducedMatrix, Complexity> lists = binder.bind();
 
             // Select reduced matrix parameter
-            ReducedMatrixParameter param = Parameters::uniqueRoutes;
+            ReducedMatrixParameter param = Parameters::maxCycleLength;
 
             // Select correlation coefficient
             Correlation correlation = new PearsonCorrelation(); // or new SpearmanCorrelation();
 
-            // Count correlation between Reducrd Matrix Param and Complexity
+            // Count correlation between Reduced Matrix Param and Complexity
             double result = correlation.count(
                     TSPConverter.toParamsDataset(lists.getFirst(), param),
                     TSPConverter.toDouble(lists.getSecond())
@@ -54,7 +52,6 @@ public class Main {
             System.out.println("The result correlation is " + result);
         }
         catch (FileNotFoundException e){
-
             System.out.println(e.getMessage());
         }
     }
