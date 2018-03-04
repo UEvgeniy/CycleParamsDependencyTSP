@@ -4,7 +4,8 @@ import model.Complexity;
 import model.Dataset;
 
 import java.io.File;
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class TxtComplexityLoader implements DatasetLoader<Complexity> {
 
@@ -21,9 +22,18 @@ public class TxtComplexityLoader implements DatasetLoader<Complexity> {
     }
 
     @Override
-    public Dataset<Complexity> load() {
+    public Dataset<Complexity> load() throws FileNotFoundException{
         Dataset<Complexity> result = new Dataset<>();
-        // todo write complexity loader
+
+        Scanner s = new Scanner(file);
+        while (s.hasNextLine()){
+            // todo write pattern
+            String[] line = s.nextLine().split("[_;]");
+            int id = Integer.parseInt(line[2]);
+            int complexity = Integer.parseInt(line[3]);
+
+            result.add(id, new Complexity(complexity));
+        }
         return result;
     }
 }

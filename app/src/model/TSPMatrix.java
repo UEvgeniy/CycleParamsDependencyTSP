@@ -35,12 +35,15 @@ public class TSPMatrix {
 
     }
 
-    void set(int i, int j, int value) {
+    public void set(int i, int j, int value) {
 
         checkIndexes(i, j);
         matrix[i][j] = value;
     }
 
+    public int getDimension() {
+        return dimension;
+    }
 
     /*
     Private methods

@@ -2,6 +2,7 @@ package model;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Dataset<T> {
 
@@ -21,5 +22,13 @@ public class Dataset<T> {
         }
 
         dataMap.put(id, matrix);
+    }
+
+    public T getById(int id){
+        return dataMap.get(id);
+    }
+
+    public Set<Integer> getKeys(){
+        return dataMap.keySet();
     }
 }

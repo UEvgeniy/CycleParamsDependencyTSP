@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.List;
+import java.io.FileNotFoundException;
 
 public interface DatasetLoader<T> {
 
-    Dataset<T> load();
+    Dataset<T> load() throws FileNotFoundException;
 
     default boolean hasExtension(File file, String extension){
         if (Objects.requireNonNull(file).isDirectory()){
