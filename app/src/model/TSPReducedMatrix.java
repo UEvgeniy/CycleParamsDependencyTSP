@@ -1,18 +1,19 @@
 package model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class TSPReducedMatrix {
 
-    private int[] minRoutes;
+    private List<Integer>[] minRoutes;
 
-    public TSPReducedMatrix(int[] minRoutes){
+    public TSPReducedMatrix(List<Integer>[] minRoutes){
         Objects.requireNonNull(minRoutes);
         this.minRoutes = minRoutes;
     }
 
 
-    public int[] getMinRoutes() {
+    public List<Integer>[] getMinRoutes() {
         return minRoutes;
     }
 }

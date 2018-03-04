@@ -14,14 +14,14 @@ public class Dataset<T> {
         dataMap = new HashMap<>();
     }
 
-    public void add(int id, T matrix){
+    public void add(int id, T object){
 
         if (dataMap.containsKey(id)){
             String EXC = "Id " + id + " is already exists in the dataset.";
             throw new IllegalArgumentException(EXC);
         }
 
-        dataMap.put(id, matrix);
+        dataMap.put(id, object);
     }
 
     public T getById(int id){
