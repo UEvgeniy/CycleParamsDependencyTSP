@@ -1,4 +1,6 @@
-package model;
+package control;
+
+import model.TSPReducedMatrix;
 
 import java.util.*;
 import java.util.stream.Collectors;
