@@ -1,4 +1,4 @@
-import model.Parameters;
+import control.Parameters;
 import model.TSPReducedMatrix;
 
 import org.junit.Assert;
@@ -105,7 +105,6 @@ public class TestParameters {
     }
 
     /// Private methods
-
     private void testGettingCycle(List<Integer>[] minRoutes, Integer... expected) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         TSPReducedMatrix reducedMatrix = new TSPReducedMatrix(minRoutes);
@@ -124,7 +123,7 @@ public class TestParameters {
     }
 
     @SafeVarargs
-    private List<Integer>[] formMinRoute(List<Integer>... values){
+    private final List<Integer>[] formMinRoute(List<Integer>... values){
         return values;
     }
 
