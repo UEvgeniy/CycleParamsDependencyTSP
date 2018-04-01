@@ -10,13 +10,13 @@ public class TSPConverter {
 
     private TSPConverter(){}
 
-    public static Dataset<TSPReducedMatrix> toReducedDataset(Dataset<TSPMatrix> dataset){
+    public static Dataset<TSPReducedMatrix> toReducedDataset(Dataset<TSPMatrix> dataset, ReducingOrder order){
 
         Dataset<TSPReducedMatrix> result = new Dataset<>();
 
         for (Integer id: dataset.getKeys()){
 
-            TSPReducedMatrix reducedMatrix = convertToReduced(dataset.getById(id), ReducingOrder.RowsColumns);
+            TSPReducedMatrix reducedMatrix = convertToReduced(dataset.getById(id), order);
             result.add(id, reducedMatrix);
         }
         return result;

@@ -1,58 +1,37 @@
-import model.BindedData;
-import control.DataBinder;
-import control.TSPConverter;
-import io.TxtComplexityLoader;
-import io.TxtMatrixLoader;
-import model.*;
+import control.Parameters;
+import control.PearsonCorrelation;
+import model.Complexity;
+import model.Dataset;
+import model.TSPReducedMatrix;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Main {
 
     public static void main (String[] args) {
-        example(args);
+        long start = System.currentTimeMillis();
+
+        experiment(args);
+
+        System.out.println((System.currentTimeMillis() - start) / 1000 + " sec");
     }
 
-    private static void example(String[] args){
-        // Init location of data files
-        File matrFile = new File(args[0]);
-        File complFile = new File(args[1]);
-
-        // Init data loaders
-        TxtMatrixLoader mLoader = new TxtMatrixLoader(matrFile, true);
-        TxtComplexityLoader cLoader = new TxtComplexityLoader(complFile);
-
-        // Load data to datasets
-        Dataset<TSPMatrix> datasetMatr;
-        Dataset<Complexity> datasetCompl;
+    public static void experiment(String[] args){
         try {
-            datasetMatr = mLoader.load();
-            datasetCompl = cLoader.load();
 
-            // Convert TSP Matrixes to reduced ones
-            Dataset<TSPReducedMatrix> reduced = TSPConverter.toReducedDataset(datasetMatr);
+            Dataset<TSPReducedMatrix> dReduced = UseCases.deserializeReducedTSP(args[0], true);
+            Dataset<Complexity> dComplexity = UseCases.loadComplexities(args[1]);
 
-            // Bind reduced matrixes and its complexity by ids
-            DataBinder<TSPReducedMatrix, Complexity> binder = new DataBinder<>(reduced, datasetCompl);
-            BindedData<TSPReducedMatrix, Complexity> lists = binder.bind();
+            double res = UseCases.experiment(
+                    dReduced,
+                    dComplexity,
+                    Parameters::numberOfCycles,
+                    new PearsonCorrelation());
+            
+            System.out.println(res);
 
-            // Select reduced matrix parameter
-            ReducedMatrixParameter param = Parameters::maxCycleLength;
-
-            // Select correlation coefficient
-            Correlation correlation = new PearsonCorrelation(); // or new SpearmanCorrelation();
-
-            // Count correlation between Reduced Matrix Param and Complexity
-            double result = correlation.count(
-                    TSPConverter.toParamsDataset(lists.getFirst(), param),
-                    TSPConverter.toDouble(lists.getSecond())
-            );
-
-            System.out.println("The result correlation is " + result);
-        }
-        catch (FileNotFoundException e){
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

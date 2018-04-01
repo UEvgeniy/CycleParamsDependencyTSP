@@ -4,8 +4,7 @@ import model.Dataset;
 import model.TSPMatrix;
 
 import java.io.File;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.io.FileNotFoundException;
 
 
@@ -19,7 +18,18 @@ public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
     }
 
     public TxtMatrixLoader(File file, boolean withSubfolders){
-      files = getWithSubfolders(file, EXTENSION);
+        if (withSubfolders) {
+            files = getWithSubfolders(file, EXTENSION);
+        }
+        else{
+            files = new ArrayList<>();
+            for (File f : Objects.requireNonNull(file.listFiles())){
+                if (hasExtension(f, EXTENSION)){
+                    files.add(f);
+                }
+            }
+
+        }
     }
 
     @Override
