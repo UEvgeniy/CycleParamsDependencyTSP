@@ -54,7 +54,7 @@ public class UseCases {
 
     }
 
-    public static Dataset<TSPReducedMatrix> getTxtTSPAndConvert(
+    public static Dataset<TSPReducedMatrix> loadTxtTSPAndConvert(
             String path, boolean withSubfolders, ReducingOrder order) throws FileNotFoundException {
 
         Dataset<TSPMatrix> matrixDataset = loadTSPs(path, withSubfolders);

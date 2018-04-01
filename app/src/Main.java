@@ -1,33 +1,36 @@
-import control.*;
-import io.ObjReducedMatrixLoader;
-import io.ObjReducedMatrixSaver;
-import model.BindedData;
-import io.TxtComplexityLoader;
-import io.TxtMatrixLoader;
-import model.*;
-import util.Utils;
+import control.Parameters;
+import control.PearsonCorrelation;
+import model.Complexity;
+import model.Dataset;
+import model.TSPReducedMatrix;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
 
 public class Main {
 
     public static void main (String[] args) {
-        try {
-            Dataset<TSPReducedMatrix> dReduced =
-                    UseCases.getTxtTSPAndConvert(args[0], true, ReducingOrder.RowsColumns);
+        long start = System.currentTimeMillis();
 
+        experiment(args);
+
+        System.out.println((System.currentTimeMillis() - start) / 1000 + " sec");
+    }
+
+    public static void experiment(String[] args){
+        try {
+
+            Dataset<TSPReducedMatrix> dReduced = UseCases.deserializeReducedTSP(args[0], true);
             Dataset<Complexity> dComplexity = UseCases.loadComplexities(args[1]);
 
-            UseCases.bindDatasets(dReduced, dComplexity);
+            double res = UseCases.experiment(
+                    dReduced,
+                    dComplexity,
+                    Parameters::numberOfCycles,
+                    new PearsonCorrelation());
+            
+            System.out.println(res);
 
-            UseCases.experiment(dReduced, dComplexity, Parameters::maxCycleLength, new PearsonCorrelation());
-
-
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
