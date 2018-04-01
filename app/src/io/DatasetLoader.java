@@ -1,6 +1,7 @@
 package io;
 import model.Dataset;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.io.FileNotFoundException;
 
 public interface DatasetLoader<T> {
 
-    Dataset<T> load() throws FileNotFoundException;
+    Dataset<T> load() throws IOException;
 
     default boolean hasExtension(File file, String extension){
         if (Objects.requireNonNull(file).isDirectory()){

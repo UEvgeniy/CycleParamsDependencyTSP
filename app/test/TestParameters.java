@@ -105,7 +105,7 @@ public class TestParameters {
     }
 
     /// Private methods
-    private void testGettingCycle(List<Integer>[] minRoutes, Integer... expected) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void testGettingCycle(List<Integer>[] minRoutes, Integer... expected) {
 
         TSPReducedMatrix reducedMatrix = new TSPReducedMatrix(minRoutes);
         List<Integer> actual = Parameters.getCycles(reducedMatrix);
