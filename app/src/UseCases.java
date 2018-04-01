@@ -1,6 +1,9 @@
 import com.sun.istack.internal.NotNull;
 import control.*;
-import io.*;
+import io.ObjReducedMatrixLoader;
+import io.ObjReducedMatrixSaver;
+import io.TxtComplexityLoader;
+import io.TxtMatrixLoader;
 import model.*;
 import util.Utils;
 
@@ -8,9 +11,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class UseCases {
 
@@ -119,21 +125,12 @@ public class UseCases {
             ps.print(i+1 + ". ");
             ps.print("Compl: " + data.getSecond().get(i).get());
 
-            List<Integer> cycles = Parameters.getCycles(data.getFirst().get(i));
-            ps.print(". Size: "+ cycles.size() + ": ");
 
-            Map<Integer, Integer> map = new HashMap<>();
+            Map<Integer, Integer> map = countCycles(data.getFirst().get(i));
 
-            for (Integer j : cycles){
-                if (map.containsKey(j)){
-                    map.put(j, map.get(j) + 1);
-                }
-                else{
-                    map.put(j, 1);
-                }
-            }
+            ps.print(". Size: "+ map.values().stream().mapToInt(Integer::intValue).sum() + ": ");
 
-            map = Utils.sortByValue(map, Utils.Compare::byKeys);
+            map = Utils.sort(map, Utils.Compare::byKeys);
 
             for (Integer key: map.keySet()){
                 ps.print("\'" + key + "\'-" + map.get(key) + "шт; ");
@@ -141,5 +138,63 @@ public class UseCases {
             ps.println();
         }
 
+    }
+
+
+    private static class Binded implements Comparable<Binded>{
+        TSPReducedMatrix m;
+        Integer i;
+        private Binded(TSPReducedMatrix m, Complexity c){
+            this.m = m;
+            this.i = c.get();
+        }
+
+        @Override
+        public int compareTo(Binded o) {
+            return i - o.i;
+        }
+    }
+
+    public static void table(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps, String sep){
+
+        List<TSPReducedMatrix> reduced = data.getFirst();
+        List<Complexity> comp = data.getSecond();
+
+        List<Binded> sorted = IntStream.range(0, reduced.size())
+                .mapToObj(i -> new Binded(reduced.get(i), comp.get(i))) // Create the instance
+                .sorted(Comparator.comparingInt(b -> b.i))              // Sort using a Comparator
+                .collect(Collectors.toList());
+
+
+        for (Binded b : sorted){
+
+            ps.print(b.i);
+            ps.print(sep);
+
+            Map<Integer, Integer> map = countCycles(b.m);
+            map = Utils.sort(map, Utils.Compare::byKeys);
+
+
+            for (int key = 1; key < b.m.getMinRoutes().length; key++){ // todo change
+                ps.print(map.get(key) == null ? 0 : map.get(key));
+                ps.print(sep);
+            }
+            ps.println();
+        }
+    }
+
+    private static Map<Integer, Integer> countCycles(TSPReducedMatrix rm){
+        Map<Integer, Integer> map = new HashMap<>();
+        List<Integer> cycles = Parameters.getCycles(rm);
+
+        for (Integer j : cycles){
+            if (map.containsKey(j)){
+                map.put(j, map.get(j) + 1);
+            }
+            else{
+                map.put(j, 1);
+            }
+        }
+        return map;
     }
 }

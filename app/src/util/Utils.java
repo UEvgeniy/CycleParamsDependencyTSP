@@ -9,7 +9,7 @@ public class Utils {
     }
 
     public static <K extends Comparable<? super K>, V extends Comparable<? super V>> Map<K, V>
-    sortByValue(Map<K, V> map, Comparator<? super Map.Entry<K, V>> comparator) {
+    sort(Map<K, V> map, Comparator<? super Map.Entry<K, V>> comparator) {
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
         list.sort(comparator);
 
