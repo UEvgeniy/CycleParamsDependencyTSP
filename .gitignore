@@ -7,6 +7,7 @@
 #Intellij idea
 *.idea
 *.iml
+target/
 
 # BlueJ files
 *.ctxt

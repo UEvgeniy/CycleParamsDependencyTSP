@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 
 public interface DatasetLoader<T> {
 
-    Dataset<T> load() throws IOException;
+    Dataset<T> load() throws IOException, ClassNotFoundException;
 
     default boolean hasExtension(File file, String extension){
         if (Objects.requireNonNull(file).isDirectory()){
