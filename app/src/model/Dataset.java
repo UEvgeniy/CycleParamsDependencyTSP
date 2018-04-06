@@ -1,12 +1,14 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-public class Dataset<T> {
+public class Dataset<T> implements Serializable {
 
 
+    private static final long serialVersionUID = -868575552503575995L;
     private Map<Integer, T> dataMap;
 
 
