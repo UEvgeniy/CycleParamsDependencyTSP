@@ -1,6 +1,7 @@
 import control.Parameters;
 import control.PearsonCorrelation;
-import io.ObjReducedDatasetLoader;
+import io.ObjWholeLoader;
+import io.ObjWholeSaver;
 import model.Complexity;
 import model.Dataset;
 import model.TSPReducedMatrix;
@@ -13,7 +14,7 @@ public class Main {
     public static void main (String[] args) {
         long start = System.currentTimeMillis();
 
-        tmp(args);
+        //    tmp(args);
 
         System.out.println((System.currentTimeMillis() - start) / 1000 + " sec");
     }
@@ -21,14 +22,12 @@ public class Main {
     public static void tmp(String[] args) {
         try {
 
-            ObjReducedDatasetLoader loader = new ObjReducedDatasetLoader(new File(args[2]));
+            ObjWholeLoader loader = new ObjWholeLoader(new File(args[2]));
             Dataset<TSPReducedMatrix> newD = loader.load();
 
             //UseCases.deserializeReducedTSP(args[0], false);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

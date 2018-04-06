@@ -1,7 +1,6 @@
-import com.sun.istack.internal.NotNull;
 import control.*;
-import io.ObjReducedMatrixesLoader;
-import io.ObjReducedMatrixesSaver;
+import io.ObjReducedMatrixLoader;
+import io.ObjReducedMatrixSaver;
 import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
 import model.*;
@@ -42,14 +41,14 @@ public class UseCases {
         return binder.bind();
     }
 
-    public static void serializeReducedTSP(@NotNull Dataset<TSPReducedMatrix> dataset, String path) throws IOException {
+    public static void serializeReducedTSP(Dataset<TSPReducedMatrix> dataset, String path) throws IOException {
 
-        ObjReducedMatrixesSaver orms = new ObjReducedMatrixesSaver(dataset, new File(path));
+        ObjReducedMatrixSaver orms = new ObjReducedMatrixSaver(dataset, new File(path));
         orms.save();
     }
 
     public static Dataset<TSPReducedMatrix> deserializeReducedTSP(String path, boolean withSubfolders) throws IOException {
-        ObjReducedMatrixesLoader orml = new ObjReducedMatrixesLoader(new File(path), withSubfolders);
+        ObjReducedMatrixLoader orml = new ObjReducedMatrixLoader(new File(path), withSubfolders);
         return orml.load();
 
     }
@@ -63,10 +62,10 @@ public class UseCases {
 
 
     public static double experiment(
-            @NotNull Dataset<TSPReducedMatrix> dReduced,
-            @NotNull Dataset<Complexity> dComplexities,
-            @NotNull ReducedMatrixParameter param,
-            @NotNull Correlation correlation){
+             Dataset<TSPReducedMatrix> dReduced,
+             Dataset<Complexity> dComplexities,
+             ReducedMatrixParameter param,
+             Correlation correlation){
 
         BindedData<TSPReducedMatrix, Complexity> binded = bindDatasets(dReduced, dComplexities); // bind by IDs
 

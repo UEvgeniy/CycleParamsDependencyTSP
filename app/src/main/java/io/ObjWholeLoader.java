@@ -7,17 +7,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-public class ObjReducedDatasetLoader implements DatasetLoader<TSPReducedMatrix> {
+public class ObjWholeLoader implements DatasetLoader<TSPReducedMatrix> {
 
     private File file;
     private static String EXTENSION = "redmat";
 
-    public ObjReducedDatasetLoader(File file) {
+    public ObjWholeLoader(File file) {
         this(file, false);
     }
 
-    public ObjReducedDatasetLoader(File file, boolean withSubfolders){
+    public ObjWholeLoader(File file, boolean withSubfolders){
         this.file = file;
     }
 

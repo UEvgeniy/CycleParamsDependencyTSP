@@ -1,19 +1,19 @@
 package io;
 
-import com.sun.istack.internal.NotNull;
+
 import model.Dataset;
 import model.TSPReducedMatrix;
 
 import java.io.*;
 import java.util.Objects;
 
-public class ObjReducedMatrixesSaver {
+public class ObjReducedMatrixSaver {
 
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
     private static String EXTENSION = "redmat";
     private File file;
 
-    public ObjReducedMatrixesSaver(Dataset<TSPReducedMatrix> dataset, File file){
+    public ObjReducedMatrixSaver(Dataset<TSPReducedMatrix> dataset, File file){
         reducedMatrixDataset = Objects.requireNonNull(dataset);
         this.file = Objects.requireNonNull(file);
     }
