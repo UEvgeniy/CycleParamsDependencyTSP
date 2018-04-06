@@ -1,7 +1,7 @@
 import com.sun.istack.internal.NotNull;
 import control.*;
-import io.ObjReducedMatrixLoader;
-import io.ObjReducedMatrixSaver;
+import io.ObjReducedMatrixesLoader;
+import io.ObjReducedMatrixesSaver;
 import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
 import model.*;
@@ -44,12 +44,12 @@ public class UseCases {
 
     public static void serializeReducedTSP(@NotNull Dataset<TSPReducedMatrix> dataset, String path) throws IOException {
 
-        ObjReducedMatrixSaver orms = new ObjReducedMatrixSaver(dataset, new File(path));
+        ObjReducedMatrixesSaver orms = new ObjReducedMatrixesSaver(dataset, new File(path));
         orms.save();
     }
 
     public static Dataset<TSPReducedMatrix> deserializeReducedTSP(String path, boolean withSubfolders) throws IOException {
-        ObjReducedMatrixLoader orml = new ObjReducedMatrixLoader(new File(path), withSubfolders);
+        ObjReducedMatrixesLoader orml = new ObjReducedMatrixesLoader(new File(path), withSubfolders);
         return orml.load();
 
     }
