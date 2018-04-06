@@ -8,16 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ObjReducedMatrixLoader implements DatasetLoader<TSPReducedMatrix> {
+public class ObjReducedMatrixesLoader implements DatasetLoader<TSPReducedMatrix> {
 
     private List<File> files;
     private static String EXTENSION = "redmat";
 
-    public ObjReducedMatrixLoader(File file) {
+    public ObjReducedMatrixesLoader(File file) {
         this(file, false);
     }
 
-    public ObjReducedMatrixLoader(File file, boolean withSubfolders){
+    public ObjReducedMatrixesLoader(File file, boolean withSubfolders){
         if (withSubfolders) {
             files = getWithSubfolders(file, EXTENSION);
         }

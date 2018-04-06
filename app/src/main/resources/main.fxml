@@ -12,9 +12,9 @@
    <children>
       <Label layoutX="329.0" layoutY="320.0" text="or" />
       <TextField layoutX="100.0" layoutY="81.0" prefHeight="39.0" prefWidth="284.0" promptText="Folder path..." />
-      <Button layoutX="414.0" layoutY="81.0" mnemonicParsing="false" text="Browse..." />
+      <Button layoutX="414.0" layoutY="81.0" mnemonicParsing="false" onAction="#onBrowse" text="Browse..." />
       <CheckBox layoutX="313.0" layoutY="34.0" mnemonicParsing="false" text="Include subfolders" />
-      <ComboBox layoutX="100.0" layoutY="28.0" prefHeight="39.0" prefWidth="168.0" promptText="Type of data" />
+      <ComboBox fx:id="cbLoadedData" layoutX="100.0" layoutY="28.0" prefHeight="39.0" prefWidth="168.0" promptText="Type of data" />
       <Button layoutX="225.0" layoutY="136.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="192.0" text="Load" />
       <Label layoutX="73.0" layoutY="211.0" text="Data View">
          <font>
@@ -26,12 +26,12 @@
             <Font size="23.0" />
          </font>
       </Label>
-      <ComboBox layoutX="57.0" layoutY="286.0" prefHeight="39.0" prefWidth="168.0" promptText="Type of data" />
+      <ComboBox fx:id="cbTypeView" layoutX="57.0" layoutY="286.0" prefHeight="39.0" prefWidth="168.0" promptText="Type of data" />
       <Button layoutX="45.0" layoutY="408.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="192.0" text="Go" />
       <TextField layoutX="29.0" layoutY="345.0" prefHeight="39.0" prefWidth="155.0" promptText="Folder path..." />
       <Button layoutX="203.0" layoutY="345.0" mnemonicParsing="false" text="Browse..." />
-      <ComboBox layoutX="408.0" layoutY="278.0" prefHeight="39.0" prefWidth="192.0" promptText="Cylce parameter" />
-      <ComboBox layoutX="408.0" layoutY="333.0" prefHeight="39.0" prefWidth="192.0" promptText="Correlation" />
+      <ComboBox fx:id="cbCycleParam" layoutX="408.0" layoutY="278.0" prefHeight="39.0" prefWidth="192.0" promptText="Cycle parameter" />
+      <ComboBox fx:id="cbCorrelation" layoutX="408.0" layoutY="333.0" prefHeight="39.0" prefWidth="192.0" promptText="Correlation" />
       <Button layoutX="414.0" layoutY="408.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="192.0" text="Go" />
    </children>
 </AnchorPane>

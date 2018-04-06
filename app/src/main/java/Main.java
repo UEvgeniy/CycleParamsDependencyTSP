@@ -1,7 +1,6 @@
 import control.Parameters;
 import control.PearsonCorrelation;
-import io.ObjWholeLoader;
-import io.ObjWholeSaver;
+import io.ObjReducedDatasetLoader;
 import model.Complexity;
 import model.Dataset;
 import model.TSPReducedMatrix;
@@ -22,7 +21,7 @@ public class Main {
     public static void tmp(String[] args) {
         try {
 
-            ObjWholeLoader loader = new ObjWholeLoader(new File(args[2]));
+            ObjReducedDatasetLoader loader = new ObjReducedDatasetLoader(new File(args[2]));
             Dataset<TSPReducedMatrix> newD = loader.load();
 
             //UseCases.deserializeReducedTSP(args[0], false);
