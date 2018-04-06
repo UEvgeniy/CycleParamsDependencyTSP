@@ -7,13 +7,13 @@ import model.TSPReducedMatrix;
 import java.io.*;
 import java.util.Objects;
 
-public class ObjReducedMatrixSaver {
+public class ObjReducedMatrixesSaver {
 
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
     private static String EXTENSION = "redmat";
     private File file;
 
-    public ObjReducedMatrixSaver(Dataset<TSPReducedMatrix> dataset, File file){
+    public ObjReducedMatrixesSaver(Dataset<TSPReducedMatrix> dataset, File file){
         reducedMatrixDataset = Objects.requireNonNull(dataset);
         this.file = Objects.requireNonNull(file);
     }
