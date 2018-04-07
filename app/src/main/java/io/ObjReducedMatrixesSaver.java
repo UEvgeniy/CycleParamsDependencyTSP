@@ -10,7 +10,7 @@ import java.util.Objects;
 public class ObjReducedMatrixesSaver {
 
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
-    private static String EXTENSION = "redmat";
+    private static String EXTENSION = "rm";
     private File file;
 
     public ObjReducedMatrixesSaver(Dataset<TSPReducedMatrix> dataset, File file){

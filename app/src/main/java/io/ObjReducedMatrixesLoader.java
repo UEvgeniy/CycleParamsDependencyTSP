@@ -11,7 +11,7 @@ import java.util.Objects;
 public class ObjReducedMatrixesLoader implements DatasetLoader<TSPReducedMatrix> {
 
     private List<File> files;
-    private static String EXTENSION = "redmat";
+    private static String EXTENSION = "rm";
 
     public ObjReducedMatrixesLoader(File file) {
         this(file, false);
