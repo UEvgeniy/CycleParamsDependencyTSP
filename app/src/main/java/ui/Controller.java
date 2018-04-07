@@ -1,11 +1,13 @@
 package ui;
 
-import io.DatasetLoader;
-import javafx.beans.InvalidationListener;
+import control.ReducingOrder;
+import control.TSPConverter;
+import io.ObjReducedDatasetLoader;
+import io.ObjReducedMatrixesLoader;
+import io.TxtMatrixLoader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -14,33 +16,37 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import model.Complexity;
+import model.Dataset;
 import model.TSPReducedMatrix;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Observable;
 
 public class Controller {
 
     // Properties
-    private ObjectProperty<File> fLoadDir,fLoadFile, fSaveFile;
+    private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
     private BooleanProperty subfolders;
-    private DatasetLoader<TSPReducedMatrix> datasetLoader;
+    private Dataset<TSPReducedMatrix> reducedMatrixDataset;
+    private Dataset<Complexity> complexityDataset;
     private IntegerProperty loadIndex;
+    private  Task<Dataset<TSPReducedMatrix>> task;
 
     // Combo Boxes
     @FXML
     public ComboBox<String> cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation;
     @FXML
-    public Button btnBrowseLoad, btnBrowseSave, btnLoad;
+    public Button btnBrowseLoad, btnBrowseSave, btnLoad, btnLoadCompl, cancelBtn;
     @FXML
     public TextField tfLoad, tfSave, tfLoadCompl;
     @FXML
     public Pane paneFolder, paneFile;
     @FXML
-    public Label lblFolder, lblFile;
+    public Label lblFolder, lblFile, lblNumEl;
     @FXML
     public CheckBox cbSubfolders;
+    @FXML
+    public ProgressBar progressBar;
 
     @FXML
     public void initialize(){
@@ -55,20 +61,26 @@ public class Controller {
             cb.getSelectionModel().selectFirst();
         }
 
+
+
         // Binding data
-        fLoadDir = new SimpleObjectProperty<>();
-        fSaveFile = new SimpleObjectProperty<>();
-        fLoadFile = new SimpleObjectProperty<>();
+        fLoadMatrixes = new SimpleObjectProperty<>();
+        fSaveData = new SimpleObjectProperty<>();
+        fLoadComplexity = new SimpleObjectProperty<>();
         subfolders = new SimpleBooleanProperty();
         loadIndex = new SimpleIntegerProperty();
+        reducedMatrixDataset = new Dataset<>();
 
-        tfLoad.textProperty().bind(fLoadDir.asString());
-        tfLoadCompl.textProperty().bind(fLoadFile.asString());
-        tfSave.textProperty().bind(fSaveFile.asString());
+        tfLoad.textProperty().bind(fLoadMatrixes.asString());
+        tfLoadCompl.textProperty().bind(fLoadComplexity.asString());
+        tfSave.textProperty().bind(fSaveData.asString());
         subfolders.bind(cbSubfolders.selectedProperty());
         loadIndex.bind(cbLoadedData.getSelectionModel().selectedIndexProperty());
         lblFolder.textProperty().bind(
                 Bindings.format("%s:",cbLoadedData.getSelectionModel().selectedItemProperty())
+        );
+        lblNumEl.textProperty().bind(
+                Bindings.format("%d matrixes loaded", reducedMatrixDataset.getKeys().size())
         );
     }
 
@@ -78,14 +90,14 @@ public class Controller {
         if (loadIndex.get() == 2){
             browseFile(
                     new FileChooser.ExtensionFilter("Dataset file", "*.ds"),
-                    fLoadDir,
+                    fLoadMatrixes,
                     ((Node) actionEvent.getSource()).getScene().getWindow(),
                     true);
         }
         else {
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setInitialDirectory(new File("D://VKR/data"));
-            fLoadDir.setValue(
+            fLoadMatrixes.setValue(
                     dirChooser.showDialog(((Node) actionEvent.getSource()).getScene().getWindow())
             );
         }
@@ -93,8 +105,7 @@ public class Controller {
     }
 
     public void onLoadedDataSelected(ActionEvent actionEvent) {
-        fLoadDir.setValue(null);
-        fLoadFile.setValue(null);
+        fLoadMatrixes.setValue(null);
     }
 
     public void onBrowseFile(ActionEvent actionEvent) {
@@ -105,23 +116,32 @@ public class Controller {
         if (sourse == btnBrowseLoad){
             browseFile(
                     new FileChooser.ExtensionFilter("TXT file", "*.txt"),
-                    fLoadFile,
+                    fLoadComplexity,
                     win,
                     true
             );
 
         }
+        else if(sourse == btnLoadCompl){
+            browseFile(
+                    new FileChooser.ExtensionFilter("TXT file", "*.txt"),
+                    fLoadComplexity,
+                    win,
+                    true
+            );
+        }
         else if (sourse == btnBrowseSave){
             browseFile(
                     new FileChooser.ExtensionFilter("CSV file", "*.csv"),
-                    fSaveFile,
+                    fSaveData,
                     win,
                     false
             );
         }
     }
 
-    private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file, Window win, boolean isOpen){
+    private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file,
+                            Window win, boolean isOpen){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File("D://VKR/data"));
         fileChooser.getExtensionFilters().add(filter);
@@ -132,17 +152,106 @@ public class Controller {
     }
 
     public void onLoadData(ActionEvent actionEvent) {
+        long start = System.currentTimeMillis();
 
-        int selected = loadIndex.get();
-        switch (selected){
-            case 0:
-                //datasetLoader =
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
+        // Inialize tasks
+        try {
+            initTask();
+        }
+        catch (NullPointerException e){
+            Util.alert(
+                    Alert.AlertType.ERROR,
+                    "Some paths are null",
+                    "Please, fill all the paths",
+                    ButtonType.OK);
+            return;
         }
 
+        // Bind task to progress bar
+        progressBar.progressProperty().bind(task.progressProperty());
+
+        task.setOnSucceeded((e) -> {
+            cancelBtn.setVisible(false);
+            reducedMatrixDataset = task.getValue();
+            Util.alert(
+                    Alert.AlertType.INFORMATION,
+                    "Datasets successfully loaded",
+                    String.format("%d elements loaded for %2$,.2f sec",
+                            reducedMatrixDataset.getKeys().size(),
+                            (double)(System.currentTimeMillis() - start) / 1000),
+                    ButtonType.OK);
+        });
+
+        new Thread(task).start();
+        cancelBtn.setVisible(true);
+    }
+
+    private void initTask(){
+        switch (loadIndex.get()){
+            case 0:
+                task = new TxtMatrixLoader(fLoadMatrixes.get(), subfolders.get()){
+                  @Override
+                  protected Dataset<TSPReducedMatrix> call() throws Exception {
+                      return TSPConverter.toReducedDataset(load(), ReducingOrder.RowsColumns);
+                  }
+                };
+                break;
+            case 1:
+                task = new ObjReducedMatrixesLoader(fLoadMatrixes.get(), subfolders.get()){
+                    @Override
+                    protected Dataset<TSPReducedMatrix> call() throws Exception {
+                        return load();
+                    }
+                };
+                break;
+            case 2:
+                task = new ObjReducedDatasetLoader(fLoadMatrixes.get(), subfolders.get()){
+                    @Override
+                    protected Dataset<TSPReducedMatrix> call() throws Exception {
+                        return load();
+                    }
+                };
+                break;
+        }
+        // Add handlers
+        task.setOnFailed(event -> Util.alert(
+                Alert.AlertType.ERROR,
+                "Some paths are invalid",
+                "Please, check all paths",
+                ButtonType.OK));
+
+        task.setOnCancelled(
+                event -> {
+                    cancelBtn.setVisible(false);
+                    progressBar.progressProperty().unbind();
+                    progressBar.setProgress(0);
+                    Util.alert(
+                            Alert.AlertType.INFORMATION,
+                            "Loading data was cancelled",
+                            "",
+                            ButtonType.OK);
+                }
+        );
+    }
+
+    public void onSaveDataView(ActionEvent actionEvent) {
+        int a = 12;
+    }
+
+    public void onCancel(ActionEvent actionEvent) {
+        if (task.isRunning())
+            task.cancel();
+        cancelBtn.setVisible(false);
+    }
+
+
+    static class Util{
+        static void alert(Alert.AlertType type, String header, String text, ButtonType... buttons){
+
+
+            Alert al = new Alert(type, text, buttons);
+            al.setHeaderText(header);
+            al.showAndWait();
+        }
     }
 }

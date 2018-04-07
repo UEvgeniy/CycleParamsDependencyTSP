@@ -4,6 +4,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
@@ -26,7 +27,7 @@
          </font>
       </Label>
       <ComboBox fx:id="cbTypeView" layoutX="57.0" layoutY="286.0" prefHeight="39.0" prefWidth="168.0" promptText="Type of data" />
-      <Button layoutX="45.0" layoutY="408.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="192.0" text="Go" />
+      <Button layoutX="45.0" layoutY="408.0" mnemonicParsing="false" onAction="#onSaveDataView" prefHeight="39.0" prefWidth="192.0" text="Go" />
       <TextField fx:id="tfSave" layoutX="29.0" layoutY="345.0" prefHeight="39.0" prefWidth="155.0" promptText="File path..." />
       <Button fx:id="btnBrowseSave" layoutX="203.0" layoutY="345.0" mnemonicParsing="false" onAction="#onBrowseFile" text="Browse..." />
       <ComboBox fx:id="cbCycleParam" layoutX="408.0" layoutY="278.0" prefHeight="39.0" prefWidth="192.0" promptText="Cycle parameter" />
@@ -44,8 +45,11 @@
          <children>
             <Label fx:id="lblFile" layoutX="14.0" layoutY="15.0" text="Complexity path:" />
             <TextField fx:id="tfLoadCompl" layoutX="161.0" layoutY="9.0" prefHeight="39.0" prefWidth="240.0" promptText="File path..." />
-            <Button layoutX="401.0" layoutY="9.0" mnemonicParsing="false" onAction="#onBrowseFile" text="Browse..." />
+            <Button fx:id="btnLoadCompl" layoutX="401.0" layoutY="9.0" mnemonicParsing="false" onAction="#onBrowseFile" text="Browse..." />
          </children>
       </Pane>
+      <ProgressBar fx:id="progressBar" layoutX="426.0" layoutY="171.0" prefWidth="200.0" progress="0.0" />
+      <Button fx:id="cancelBtn" layoutX="68.0" layoutY="182.0" mnemonicParsing="false" onAction="#onCancel" prefHeight="39.0" prefWidth="103.0" text="Cancel" visible="false" />
+      <Label fx:id="lblNumEl" layoutX="478.0" layoutY="199.0" text="0 elements" />
    </children>
 </AnchorPane>

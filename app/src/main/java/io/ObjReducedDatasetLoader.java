@@ -1,5 +1,6 @@
 package io;
 
+import javafx.concurrent.Task;
 import model.Dataset;
 import model.TSPReducedMatrix;
 
@@ -8,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class ObjReducedDatasetLoader implements DatasetLoader<TSPReducedMatrix> {
+public class ObjReducedDatasetLoader extends Task<Dataset<TSPReducedMatrix>> implements DatasetLoader<TSPReducedMatrix> {
 
     private File file;
     private static String EXTENSION = "redmat";
@@ -25,8 +26,9 @@ public class ObjReducedDatasetLoader implements DatasetLoader<TSPReducedMatrix> 
     public Dataset<TSPReducedMatrix> load() throws IOException, ClassNotFoundException {
 
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-
-        return  (Dataset<TSPReducedMatrix>)ois.readObject();
+        Dataset<TSPReducedMatrix> res = (Dataset<TSPReducedMatrix>)ois.readObject();
+        this.updateProgress(1, 1);
+        return res;
 
 
     }
@@ -37,5 +39,10 @@ public class ObjReducedDatasetLoader implements DatasetLoader<TSPReducedMatrix> 
 
         TSPReducedMatrix reduced = (TSPReducedMatrix)ois.readObject();
         dataset.add(Integer.valueOf(file.getName().replaceFirst("[.][^.]+$", "")), reduced);
+    }
+
+    @Override
+    protected Dataset<TSPReducedMatrix> call() throws Exception {
+        return null;
     }
 }
