@@ -1,9 +1,12 @@
 package ui;
 
+import control.DataBinder;
 import control.ReducingOrder;
 import control.TSPConverter;
+import data_view.DataView;
 import io.ObjReducedDatasetLoader;
 import io.ObjReducedMatrixesLoader;
+import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -16,20 +19,34 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import model.BindedData;
 import model.Complexity;
 import model.Dataset;
 import model.TSPReducedMatrix;
 
 import java.io.File;
+import java.io.PrintStream;
 
 public class Controller {
+
+
+    /**
+     *  Class Util with helping methods
+     */
+    static class Util{
+        static void alert(Alert.AlertType type, String header, String text, ButtonType... buttons){
+            Alert al = new Alert(type, text, buttons);
+            al.setHeaderText(header);
+            al.showAndWait();
+        }
+    }
 
     // Properties
     private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
     private BooleanProperty subfolders;
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
     private Dataset<Complexity> complexityDataset;
-    private IntegerProperty loadIndex;
+    private IntegerProperty loadIndex, saveIndex, size;
     private  Task<Dataset<TSPReducedMatrix>> task;
 
     // Combo Boxes
@@ -48,7 +65,9 @@ public class Controller {
     @FXML
     public ProgressBar progressBar;
 
-    @FXML
+    /**
+     * Initialize operations
+     */
     public void initialize(){
         // Comboboxes
         cbLoadedData.getItems().addAll(
@@ -61,30 +80,33 @@ public class Controller {
             cb.getSelectionModel().selectFirst();
         }
 
-
-
         // Binding data
         fLoadMatrixes = new SimpleObjectProperty<>();
         fSaveData = new SimpleObjectProperty<>();
         fLoadComplexity = new SimpleObjectProperty<>();
         subfolders = new SimpleBooleanProperty();
         loadIndex = new SimpleIntegerProperty();
+        saveIndex = new SimpleIntegerProperty();
         reducedMatrixDataset = new Dataset<>();
+        size = new SimpleIntegerProperty(0);
 
         tfLoad.textProperty().bind(fLoadMatrixes.asString());
         tfLoadCompl.textProperty().bind(fLoadComplexity.asString());
         tfSave.textProperty().bind(fSaveData.asString());
         subfolders.bind(cbSubfolders.selectedProperty());
         loadIndex.bind(cbLoadedData.getSelectionModel().selectedIndexProperty());
+        saveIndex.bind(cbTypeView.getSelectionModel().selectedIndexProperty());
         lblFolder.textProperty().bind(
                 Bindings.format("%s:",cbLoadedData.getSelectionModel().selectedItemProperty())
         );
         lblNumEl.textProperty().bind(
-                Bindings.format("%d matrixes loaded", reducedMatrixDataset.getKeys().size())
+                Bindings.format("%d matrixes loaded", size)
         );
     }
 
-    @FXML
+    /**
+     * Browse button
+     */
     public void onBrowseFolder(ActionEvent actionEvent) {
 
         if (loadIndex.get() == 2){
@@ -103,11 +125,6 @@ public class Controller {
         }
 
     }
-
-    public void onLoadedDataSelected(ActionEvent actionEvent) {
-        fLoadMatrixes.setValue(null);
-    }
-
     public void onBrowseFile(ActionEvent actionEvent) {
 
         Window win = ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -131,15 +148,18 @@ public class Controller {
             );
         }
         else if (sourse == btnBrowseSave){
+            FileChooser.ExtensionFilter filter =
+                    saveIndex.get() == 0 ?
+                            new FileChooser.ExtensionFilter("CSV file", "*.csv") :
+                            new FileChooser.ExtensionFilter("TXT file", "*.txt");
             browseFile(
-                    new FileChooser.ExtensionFilter("CSV file", "*.csv"),
+                    filter,
                     fSaveData,
                     win,
                     false
             );
         }
     }
-
     private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file,
                             Window win, boolean isOpen){
         FileChooser fileChooser = new FileChooser();
@@ -151,8 +171,30 @@ public class Controller {
                 fileChooser.showSaveDialog(win));
     }
 
+    /**
+     * ComboBox selected item
+     */
+    public void onLoadedDataSelected(ActionEvent actionEvent) {
+        fLoadMatrixes.setValue(null);
+    }
+
+    /**
+     * Load data from paths
+     */
     public void onLoadData(ActionEvent actionEvent) {
         long start = System.currentTimeMillis();
+
+        Task<Dataset<Complexity>> complLoader = new Task<Dataset<Complexity>>() {
+            @Override
+            protected Dataset<Complexity> call() throws Exception {
+                return new TxtComplexityLoader(fLoadComplexity.get()).load();
+            }
+        };
+        addTaskHandlers(complLoader, true);
+        complLoader.setOnSucceeded(event -> {
+            complexityDataset = complLoader.getValue();
+        });
+        new Thread(complLoader).start();
 
         // Inialize tasks
         try {
@@ -173,6 +215,7 @@ public class Controller {
         task.setOnSucceeded((e) -> {
             cancelBtn.setVisible(false);
             reducedMatrixDataset = task.getValue();
+            size.setValue(reducedMatrixDataset.getKeys().size());
             Util.alert(
                     Alert.AlertType.INFORMATION,
                     "Datasets successfully loaded",
@@ -185,7 +228,16 @@ public class Controller {
         new Thread(task).start();
         cancelBtn.setVisible(true);
     }
+    public void onCancel(ActionEvent actionEvent) {
+        if (task != null && task.isRunning())
+            task.cancel();
+        cancelBtn.setVisible(false);
+    }
 
+
+    /**
+     * Extra method for creating and adding handlers to Task
+     */
     private void initTask(){
         switch (loadIndex.get()){
             case 0:
@@ -213,14 +265,22 @@ public class Controller {
                 };
                 break;
         }
+        addTaskHandlers(task, false);
+    }
+    private void addTaskHandlers(Task t, boolean interrupt){
         // Add handlers
-        task.setOnFailed(event -> Util.alert(
+        t.setOnFailed(event -> {
+            Util.alert(
                 Alert.AlertType.ERROR,
                 "Some paths are invalid",
                 "Please, check all paths",
-                ButtonType.OK));
+                ButtonType.OK);
+            if (interrupt){
+                onCancel(null);
+            }
+                });
 
-        task.setOnCancelled(
+        t.setOnCancelled(
                 event -> {
                     cancelBtn.setVisible(false);
                     progressBar.progressProperty().unbind();
@@ -234,24 +294,48 @@ public class Controller {
         );
     }
 
+    /**
+     * Show data in different views
+     */
     public void onSaveDataView(ActionEvent actionEvent) {
-        int a = 12;
-    }
-
-    public void onCancel(ActionEvent actionEvent) {
-        if (task.isRunning())
-            task.cancel();
-        cancelBtn.setVisible(false);
-    }
-
-
-    static class Util{
-        static void alert(Alert.AlertType type, String header, String text, ButtonType... buttons){
-
-
-            Alert al = new Alert(type, text, buttons);
-            al.setHeaderText(header);
-            al.showAndWait();
+        if (reducedMatrixDataset.getKeys().isEmpty() || complexityDataset.getKeys().isEmpty()){
+            Util.alert(
+                    Alert.AlertType.ERROR,
+                    "No data to save",
+                    "Please, load data first",
+                    ButtonType.OK
+            );
+            return;
         }
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                BindedData<TSPReducedMatrix, Complexity> bindedData =
+                        new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
+                PrintStream ps = new PrintStream(fSaveData.get());
+
+                switch (saveIndex.get()){
+                    case 0:
+                        DataView.table(bindedData, ps, ";");
+
+                        break;
+                    case 1:
+                        DataView.list(bindedData, ps);
+                        break;
+                }
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> Util.alert(
+                Alert.AlertType.INFORMATION,
+                "Data saved",
+                "Data saved in file " + fSaveData.get().getName(),
+                ButtonType.OK
+        ));
+        new Thread(task).start();
     }
+
+
+
 }
