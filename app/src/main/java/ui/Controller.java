@@ -4,10 +4,7 @@ import control.DataBinder;
 import control.ReducingOrder;
 import control.TSPConverter;
 import data_view.DataView;
-import io.ObjReducedDatasetLoader;
-import io.ObjReducedMatrixesLoader;
-import io.TxtComplexityLoader;
-import io.TxtMatrixLoader;
+import io.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.concurrent.Task;
@@ -28,6 +25,7 @@ import java.io.File;
 import java.io.PrintStream;
 
 public class Controller {
+    private static final String INITIAL_PATH = "D://VKR/data";
 
 
     /**
@@ -38,6 +36,9 @@ public class Controller {
             Alert al = new Alert(type, text, buttons);
             al.setHeaderText(header);
             al.showAndWait();
+        }
+        static FileChooser.ExtensionFilter initFilter(String desc, String... ext){
+            return new FileChooser.ExtensionFilter(desc, ext);
         }
     }
 
@@ -53,7 +54,7 @@ public class Controller {
     @FXML
     public ComboBox<String> cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation;
     @FXML
-    public Button btnBrowseLoad, btnBrowseSave, btnLoad, btnLoadCompl, cancelBtn;
+    public Button btnBrMatr, btnBrSave, btnBrCompl, btnLoad, cancelBtn;
     @FXML
     public TextField tfLoad, tfSave, tfLoadCompl;
     @FXML
@@ -74,7 +75,7 @@ public class Controller {
                 "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
         cbCorrelation.getItems().addAll("Pearson", "Spearman");
         cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
-        cbTypeView.getItems().addAll("Table", "List");
+        cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes", "Serialize dataset");
 
         for (ComboBox cb : new ComboBox[]{cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation}){
             cb.getSelectionModel().selectFirst();
@@ -107,68 +108,61 @@ public class Controller {
     /**
      * Browse button
      */
-    public void onBrowseFolder(ActionEvent actionEvent) {
-
-        if (loadIndex.get() == 2){
-            browseFile(
-                    new FileChooser.ExtensionFilter("Dataset file", "*.ds"),
-                    fLoadMatrixes,
-                    ((Node) actionEvent.getSource()).getScene().getWindow(),
-                    true);
-        }
-        else {
-            DirectoryChooser dirChooser = new DirectoryChooser();
-            dirChooser.setInitialDirectory(new File("D://VKR/data"));
-            fLoadMatrixes.setValue(
-                    dirChooser.showDialog(((Node) actionEvent.getSource()).getScene().getWindow())
-            );
-        }
-
-    }
-    public void onBrowseFile(ActionEvent actionEvent) {
+    public void onBrowse(ActionEvent actionEvent) {
 
         Window win = ((Node) actionEvent.getSource()).getScene().getWindow();
         Button sourse = (Button) actionEvent.getSource();
+        FileChooser.ExtensionFilter txt = Util.initFilter("TXT file", "*.txt");
+        FileChooser.ExtensionFilter csv = Util.initFilter("CSV file", "*.csv");
+        FileChooser.ExtensionFilter ds = Util.initFilter("Dataset file", "*.ds");
 
-        if (sourse == btnBrowseLoad){
-            browseFile(
-                    new FileChooser.ExtensionFilter("TXT file", "*.txt"),
-                    fLoadComplexity,
-                    win,
-                    true
-            );
-
+        if (sourse == btnBrMatr){
+            switch (loadIndex.get()){
+                case 0:
+                    browseDir(fLoadMatrixes, win);
+                    break;
+                case 1:
+                    browseDir(fLoadMatrixes, win);
+                    break;
+                case 2:
+                    browseFile(ds, fLoadMatrixes, win, true);
+                    break;
+            }
         }
-        else if(sourse == btnLoadCompl){
-            browseFile(
-                    new FileChooser.ExtensionFilter("TXT file", "*.txt"),
-                    fLoadComplexity,
-                    win,
-                    true
-            );
+        else if(sourse == btnBrCompl){
+            browseFile(txt, fLoadComplexity, win, true);
         }
-        else if (sourse == btnBrowseSave){
-            FileChooser.ExtensionFilter filter =
-                    saveIndex.get() == 0 ?
-                            new FileChooser.ExtensionFilter("CSV file", "*.csv") :
-                            new FileChooser.ExtensionFilter("TXT file", "*.txt");
-            browseFile(
-                    filter,
-                    fSaveData,
-                    win,
-                    false
-            );
+        else if (sourse == btnBrSave){
+            switch (saveIndex.get()){
+                case 0:
+                    browseFile(csv, fSaveData, win, false);
+                    break;
+                case 1:
+                    browseFile(txt, fSaveData, win, false);
+                    break;
+                case 2:
+                    browseDir(fSaveData, win);
+                    break;
+                case 3:
+                    browseFile(ds, fSaveData, win, false);
+                    break;
+            }
         }
     }
     private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file,
                             Window win, boolean isOpen){
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("D://VKR/data"));
+        fileChooser.setInitialDirectory(new File(INITIAL_PATH));
         fileChooser.getExtensionFilters().add(filter);
 
         file.setValue(isOpen ?
                 fileChooser.showOpenDialog(win) :
                 fileChooser.showSaveDialog(win));
+    }
+    private void browseDir(ObjectProperty<File> file, Window win){
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setInitialDirectory(new File(INITIAL_PATH));
+        file.setValue(dirChooser.showDialog(win));
     }
 
     /**
@@ -206,6 +200,7 @@ public class Controller {
                     "Some paths are null",
                     "Please, fill all the paths",
                     ButtonType.OK);
+            progressBar.progressProperty().unbind();
             return;
         }
 
@@ -275,6 +270,8 @@ public class Controller {
                 "Some paths are invalid",
                 "Please, check all paths",
                 ButtonType.OK);
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             if (interrupt){
                 onCancel(null);
             }
@@ -317,10 +314,15 @@ public class Controller {
                 switch (saveIndex.get()){
                     case 0:
                         DataView.table(bindedData, ps, ";");
-
                         break;
                     case 1:
                         DataView.list(bindedData, ps);
+                        break;
+                    case 2:
+                        new ObjReducedMatrixesSaver(reducedMatrixDataset, fSaveData.get()).save();
+                        break;
+                    case 3:
+                        new ObjReducedDatasetSaver(reducedMatrixDataset, fSaveData.get()).save();
                         break;
                 }
                 return null;
@@ -335,7 +337,5 @@ public class Controller {
         ));
         new Thread(task).start();
     }
-
-
 
 }
