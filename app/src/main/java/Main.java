@@ -41,7 +41,7 @@ public class Main {
             double res = UseCases.experiment(
                     dReduced,
                     dComplexity,
-                    Parameters::numberOfCycles,
+                    Parameters::cyclesNum,
                     new PearsonCorrelation());
 
             System.out.println(res);

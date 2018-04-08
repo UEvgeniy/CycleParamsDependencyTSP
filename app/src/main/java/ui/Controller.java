@@ -1,12 +1,14 @@
 package ui;
 
-import control.DataBinder;
-import control.ReducingOrder;
-import control.TSPConverter;
+import com.sun.javafx.collections.ObservableListWrapper;
+import control.*;
 import data_view.DataView;
 import io.*;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +18,8 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import javafx.util.Callback;
+import javafx.util.Pair;
 import model.BindedData;
 import model.Complexity;
 import model.Dataset;
@@ -23,9 +27,40 @@ import model.TSPReducedMatrix;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 public class Controller {
     private static final String INITIAL_PATH = "D://VKR/data";
+
+    public void onExperiment(ActionEvent actionEvent) {
+        Task<Double> task = new Task<Double>() {
+            @Override
+            protected Double call() throws Exception {
+                BindedData<TSPReducedMatrix, Complexity> bindedData =
+                        new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
+
+                List<Double> paramsOfReducedMatrix =
+                        TSPConverter.toParamsDataset(
+                                bindedData.getFirst(),
+                                cbCycleParam.getValue().getKey());
+
+                List<Double> lComplexities =
+                        TSPConverter.toDouble(bindedData.getSecond());
+
+                return cbCorrelation.getValue().count(paramsOfReducedMatrix, lComplexities);
+            }
+        };
+
+        task.setOnSucceeded(event ->
+                Util.alert(
+                        Alert.AlertType.INFORMATION,
+                        "Experiments compeleted",
+                        String.format("The result correlation is %1$,.2f", task.getValue()),
+                        ButtonType.OK)
+        );
+
+        new Thread(task).start();
+    }
 
 
     /**
@@ -42,6 +77,16 @@ public class Controller {
         }
     }
 
+    class ParamsPair extends Pair<ReducedMatrixParameter, String>{
+        public ParamsPair(ReducedMatrixParameter key, String value) {
+            super(key, value);
+        }
+        @Override
+        public String toString() {
+            return getValue();
+        }
+    }
+
     // Properties
     private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
     private BooleanProperty subfolders;
@@ -52,7 +97,9 @@ public class Controller {
 
     // Combo Boxes
     @FXML
-    public ComboBox<String> cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation;
+    public ComboBox<String> cbLoadedData, cbTypeView;
+    public ComboBox<ParamsPair> cbCycleParam;
+    public ComboBox<Correlation> cbCorrelation;
     @FXML
     public Button btnBrMatr, btnBrSave, btnBrCompl, btnLoad, cancelBtn;
     @FXML
@@ -69,17 +116,57 @@ public class Controller {
     /**
      * Initialize operations
      */
+    // todo refactor
     public void initialize(){
         // Comboboxes
         cbLoadedData.getItems().addAll(
                 "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
-        cbCorrelation.getItems().addAll("Pearson", "Spearman");
-        cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
+        //cbCorrelation.getItems().addAll("Pearson", "Spearman");
+        //cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
         cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes", "Serialize dataset");
+
+        cbCorrelation.setItems(FXCollections.observableArrayList(new PearsonCorrelation(),
+                new SpearmanCorrelation()));
+
+        ObservableList<ParamsPair> list = FXCollections.observableArrayList(
+                new ParamsPair(Parameters::cyclesNum, "Number of cycles"),
+                new ParamsPair(Parameters::uniqueCyclesNum, "Number of unique cycles"),
+                new ParamsPair(Parameters::sumCycleLength, "Sum of cycle length"),
+                new ParamsPair(Parameters::averageCycleLength, "Average Cycle Length"),
+                new ParamsPair(Parameters::maxCycleLength, "Max cycle length"),
+                new ParamsPair(Parameters::avgMultipleMaxLenght, "Average * Max")
+                //Parameters::cyclesNum, Parameters::uniqueCyclesNum, Parameters::sumCycleLength,
+                //Parameters::averageCycleLength, Parameters::maxCycleLength
+        );
+        //Pair<ReducedMatrixParameter, String> as = new Pair<>()
+        //ReducedMatrixParameter as = Parameters::cyclesNum;
+        //cbCycleParam = new ComboBox<>(list);
+        //cbCycleParam.getSelectionModel().selectFirst();
+        cbCycleParam.setItems(list);
+        /*cbCycleParam.setCellFactory(new Callback<ListView<String>,ListCell<String>>(){
+
+            @Override
+            public ListCell<String> call(ListView<String> p) {
+
+                return new ListCell<String>(){
+                    @Override
+                    protected void updateItem(String t, boolean bln) {
+                        super.updateItem(t, bln);
+
+                        if(t != null){
+                            setText(t + ":" + t);
+                        }else{
+                            setText(null);
+                        }
+                    }
+                };
+            }
+        });*/
 
         for (ComboBox cb : new ComboBox[]{cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation}){
             cb.getSelectionModel().selectFirst();
         }
+
 
         // Binding data
         fLoadMatrixes = new SimpleObjectProperty<>();

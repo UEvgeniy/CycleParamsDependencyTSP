@@ -32,7 +32,7 @@
       <Button fx:id="btnBrSave" layoutX="203.0" layoutY="345.0" mnemonicParsing="false" onAction="#onBrowse" text="Browse..." />
       <ComboBox fx:id="cbCycleParam" layoutX="408.0" layoutY="278.0" prefHeight="39.0" prefWidth="192.0" promptText="Cycle parameter" />
       <ComboBox fx:id="cbCorrelation" layoutX="408.0" layoutY="333.0" prefHeight="39.0" prefWidth="192.0" promptText="Correlation" />
-      <Button layoutX="414.0" layoutY="408.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="192.0" text="Go" />
+      <Button layoutX="414.0" layoutY="408.0" mnemonicParsing="false" onAction="#onExperiment" prefHeight="39.0" prefWidth="192.0" text="Go" />
       <Label layoutX="30.0" layoutY="34.0" text="Loaded data:" />
       <Pane fx:id="paneFolder" layoutX="20.0" layoutY="61.0" prefHeight="63.0" prefWidth="510.0">
          <children>

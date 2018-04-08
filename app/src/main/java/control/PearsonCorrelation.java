@@ -30,4 +30,9 @@ public class PearsonCorrelation implements Correlation {
         double average = list.stream().reduce(0.0, (x,y) -> x+y) / list.size();
         return list.stream().map((c) -> (c - average)).collect(Collectors.toList());
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 }
