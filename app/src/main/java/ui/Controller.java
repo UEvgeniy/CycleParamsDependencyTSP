@@ -307,7 +307,9 @@ public class Controller {
                     ButtonType.OK);
         });
 
-        new Thread(task).start();
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
         cancelBtn.setVisible(true);
     }
     public void onCancel(ActionEvent actionEvent) {
@@ -396,14 +398,14 @@ public class Controller {
             protected Void call() throws Exception {
                 BindedData<TSPReducedMatrix, Complexity> bindedData =
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
-                PrintStream ps = new PrintStream(fSaveData.get());
+
 
                 switch (saveIndex.get()){
                     case 0:
-                        DataView.table(bindedData, ps, ";");
+                        DataView.table(bindedData, new PrintStream(fSaveData.get()), ";");
                         break;
                     case 1:
-                        DataView.list(bindedData, ps);
+                        DataView.list(bindedData, new PrintStream(fSaveData.get()));
                         break;
                     case 2:
                         new ObjReducedMatrixesSaver(reducedMatrixDataset, fSaveData.get()).save();
@@ -422,7 +424,9 @@ public class Controller {
                 "Data saved in file " + fSaveData.get().getName(),
                 ButtonType.OK
         ));
-        new Thread(task).start();
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
 }

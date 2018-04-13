@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ObjReducedDatasetSaver {
 
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
-    private static String EXTENSION = "redmat";
+    private static String EXTENSION = "rmdat";
     private File file;
 
     public ObjReducedDatasetSaver(Dataset<TSPReducedMatrix> dataset, File file){

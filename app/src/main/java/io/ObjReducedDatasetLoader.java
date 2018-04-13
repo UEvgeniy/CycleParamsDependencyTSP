@@ -12,7 +12,7 @@ import java.io.ObjectInputStream;
 public class ObjReducedDatasetLoader extends Task<Dataset<TSPReducedMatrix>> implements DatasetLoader<TSPReducedMatrix> {
 
     private File file;
-    private static String EXTENSION = "redmat";
+    private static String EXTENSION = "rmdat";
 
     public ObjReducedDatasetLoader(File file) {
         this(file, false);

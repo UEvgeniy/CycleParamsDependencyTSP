@@ -13,7 +13,7 @@ public class ObjReducedMatrixesLoader extends Task<Dataset<TSPReducedMatrix>>
         implements DatasetLoader<TSPReducedMatrix> {
 
     private List<File> files;
-    private static String EXTENSION = "redmat";
+    private static String EXTENSION = "rm";
 
     public ObjReducedMatrixesLoader(File file) {
         this(file, false);
