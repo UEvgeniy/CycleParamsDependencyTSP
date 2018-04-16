@@ -9,4 +9,9 @@ public class SpearmanCorrelation implements Correlation {
         // todo count
         return 0.0;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 }

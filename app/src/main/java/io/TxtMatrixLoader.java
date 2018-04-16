@@ -1,14 +1,17 @@
 package io;
 
+import control.TSPConverter;
+import javafx.concurrent.Task;
 import model.Dataset;
 import model.TSPMatrix;
+import model.TSPReducedMatrix;
 
 import java.io.File;
 import java.util.*;
 import java.io.FileNotFoundException;
 
 
-public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
+public class TxtMatrixLoader extends Task<Dataset<TSPReducedMatrix>> implements DatasetLoader<TSPMatrix> {
 
     private List<File> files;
     private static String EXTENSION = "txt";
@@ -36,9 +39,12 @@ public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
     public Dataset<TSPMatrix> load() throws FileNotFoundException {
         Dataset<TSPMatrix> result = new Dataset<>();
 
+        int count = 0;
         for (File f : files){
             readAndAdd(result, f);
+            this.updateProgress(++count, files.size());
         }
+        this.updateProgress(1, 1);
         return result;
     }
 
@@ -64,5 +70,10 @@ public class TxtMatrixLoader implements DatasetLoader<TSPMatrix> {
         }
 
         dataset.add(id, matrix);
+    }
+
+    @Override
+    protected Dataset<TSPReducedMatrix> call() throws Exception {
+        return null;
     }
 }

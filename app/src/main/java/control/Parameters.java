@@ -100,17 +100,12 @@ public class Parameters {
 
     //////////////// PARAMS OF REDUCED MATRIX //////////////
 
-    public static Double uniqueRoutes(TSPReducedMatrix matrix){
-
-        Set<Integer> unique = new HashSet<>();
-        for (List<Integer> x: matrix.getMinRoutes()){
-            unique.addAll(x);
-        }
-
+    public static Double uniqueCyclesNum(TSPReducedMatrix matrix){
+        Set<Integer> unique = new HashSet<>(getCycles(matrix));
         return (double)unique.size();
     }
 
-    public static Double numberOfCycles(TSPReducedMatrix matrix){
+    public static Double cyclesNum(TSPReducedMatrix matrix){
         return (double)getCycles(matrix).size();
     }
 
@@ -136,6 +131,10 @@ public class Parameters {
                 .stream()
                 .mapToDouble(a -> a)
                 .sum();
+    }
+
+    public static Double avgMultipleMaxLenght(TSPReducedMatrix matrix){
+        return maxCycleLength(matrix) * averageCycleLength(matrix);
     }
 
 }

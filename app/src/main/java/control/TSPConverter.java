@@ -45,66 +45,6 @@ public class TSPConverter {
         }
 
         return new TSPReducedMatrix(zeros);
-
-        /*int dimension = matrix.getDimension();
-        ArrayList[] result = new ArrayList[dimension];
-        Set<Integer> columnsWithZero = new HashSet<>();
-
-        // Reduce by rows
-        for (int i = 0; i < dimension; i++){
-
-            result[i] = new ArrayList<Integer>();
-            result[i].add(i == 0 ? 1 : 0);
-
-            for (int j = 1; j < dimension; j++){
-                // diagonal ignored
-                if (i == j){
-                    continue;
-                }
-                // One more minimal value
-                if (matrix.get(i, j) == matrix.get(i, (int)result[i].get(0))){
-                    result[i].add(j);
-
-                }
-                // New minimal value
-                else if (matrix.get(i, j) < matrix.get(i, (int)result[i].get(0))){
-                    result[i].clear();
-                    result[i].add(j);
-
-                }
-            }
-            columnsWithZero.addAll(result[i]);
-        }
-
-        List<Integer> currentColumnMinIndexes = new ArrayList<>();
-        for (int j = 0; j < dimension; j++){
-            if (columnsWithZero.contains(j)){
-                continue;
-            }
-            currentColumnMinIndexes.clear();
-            currentColumnMinIndexes.add( j == 0 ? 1 : 0);
-
-            for (int i = 0; i < dimension; i++){
-                // diagonal ignored
-                if (i == j){
-                    continue;
-                }
-                // One more minimal value
-                if (matrix.get(i, j) == matrix.get(i, currentColumnMinIndexes.get(0))){
-                    currentColumnMinIndexes.add(i);
-                }
-                // New minimal value
-                else if (matrix.get(i, j) < matrix.get(i, currentColumnMinIndexes.get(0))){
-                    currentColumnMinIndexes.clear();
-                    currentColumnMinIndexes.add(j);
-                }
-            }
-            // add extra zeros in result
-            for (Integer i : currentColumnMinIndexes){
-                result[i].add(j);
-            }
-        }
-        return result;*/
     }
 
 
@@ -177,40 +117,6 @@ public class TSPConverter {
             }
         }
     }
-
-    /*private void reduce(TSPMatrix matrix, boolean rowsFirst){
-        if (rowsFirst){
-            for (int i = 0; i < matrix.getDimension(); i++){
-                for (int j = 0; i < matrix.getDimension(); i++){
-                    foo(i, j);
-                }
-            }
-        }
-        else{
-            for (int i = 0; i < matrix.getDimension(); i++){
-                for (int j = 0; i < matrix.getDimension(); i++){
-                    foo(j, i);
-                }
-            }
-        }
-
-    }
-
-    private void foo(Integer i, Integer j, TSPMatrix matrix){
-        // diagonal ignored
-        if (i == j){
-            continue;
-        }
-        // One more minimal value
-        if (matrix.get(i, j) == matrix.get(i, (int)result[i].get(0))){
-            result[i].add(j);
-
-        }
-        // New minimal value
-        else if (matrix.get(i, j) < matrix.get(i, (int)result[i].get(0))){
-            result[i].clear();
-            result[i].add(j);
-    }*/
 
     public static List<Double> toParamsDataset(List<TSPReducedMatrix> dataset,
                                                ReducedMatrixParameter param){
