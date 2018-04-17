@@ -1,10 +1,8 @@
 package ui;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import control.*;
 import data_view.DataView;
 import io.*;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -18,7 +16,6 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import javafx.util.Pair;
 import model.BindedData;
 import model.Complexity;
@@ -123,7 +120,8 @@ public class Controller {
                 "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
         //cbCorrelation.getItems().addAll("Pearson", "Spearman");
         //cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
-        cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes", "Serialize dataset");
+        cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes",
+                "Serialize dataset", "Basic params info");
 
         cbCorrelation.setItems(FXCollections.observableArrayList(new PearsonCorrelation(),
                 new SpearmanCorrelation()));
@@ -134,7 +132,7 @@ public class Controller {
                 new ParamsPair(Parameters::sumCycleLength, "Sum of cycle length"),
                 new ParamsPair(Parameters::averageCycleLength, "Average Cycle Length"),
                 new ParamsPair(Parameters::maxCycleLength, "Max cycle length"),
-                new ParamsPair(Parameters::avgMultipleMaxLenght, "Average * Max")
+                new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max")
                 //Parameters::cyclesNum, Parameters::uniqueCyclesNum, Parameters::sumCycleLength,
                 //Parameters::averageCycleLength, Parameters::maxCycleLength
         );
@@ -232,6 +230,9 @@ public class Controller {
                     break;
                 case 3:
                     browseFile(ds, fSaveData, win, false);
+                    break;
+                case 4:
+                    browseFile(csv, fSaveData, win, false);
                     break;
             }
         }
@@ -412,6 +413,11 @@ public class Controller {
                         break;
                     case 3:
                         new ObjReducedDatasetSaver(reducedMatrixDataset, fSaveData.get()).save();
+                        break;
+                    case 4:
+                        PrintStream stream = new PrintStream(fSaveData.get());
+                        DataView.dot_diagram(bindedData, stream);
+                        stream.close();
                         break;
                 }
                 return null;

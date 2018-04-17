@@ -5,11 +5,15 @@ import model.Dataset;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class DataBinderTest {
 
     @Test
     public void bind() {
 
+        // Init datasets
         Dataset<String> strings = new Dataset<>();
         strings.add(42, "answer");
         strings.add(777, "azino");
@@ -22,15 +26,18 @@ public class DataBinderTest {
         numbers.add(-100, -100);
         numbers.add(42, 420);
 
-
+        // Init binded data
         DataBinder<String, Integer> db = new DataBinder<>(strings, numbers);
         BindedData<String, Integer> bindedData = db.bind();
 
+        // Check correct size
+        Set<Integer> intersection = new HashSet<>(strings.getKeys());
+        intersection.retainAll(numbers.getKeys());
+        Assert.assertEquals(
+                "Binded data has incorrect size",
+                bindedData.size(), intersection.size());
 
-        String msg = "Binded data cannot has size bigger than one of datasets";
-        Assert.assertTrue(msg, bindedData.size() <= strings.size());
-        Assert.assertTrue(msg, bindedData.size() <= numbers.size());
-
+        // Check correct indexes
         for (int id : strings.getKeys()){
             if (numbers.getKeys().contains(id)){
                 Assert.assertEquals("Data with same id not binded",

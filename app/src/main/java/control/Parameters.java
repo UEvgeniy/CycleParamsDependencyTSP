@@ -125,6 +125,14 @@ public class Parameters {
                 .max().orElse(0.0);
     }
 
+    public static Double minCycleLength(TSPReducedMatrix matrix){
+
+        return getCycles(matrix)
+                .stream()
+                .mapToDouble(a -> a)
+                .min().orElse(0.0);
+    }
+
     public static Double sumCycleLength(TSPReducedMatrix matrix){
 
         return getCycles(matrix)
@@ -133,8 +141,18 @@ public class Parameters {
                 .sum();
     }
 
-    public static Double avgMultipleMaxLenght(TSPReducedMatrix matrix){
+    public static Double avgMultipleMaxLength(TSPReducedMatrix matrix){
         return maxCycleLength(matrix) * averageCycleLength(matrix);
+    }
+
+    public static Double dispersion(TSPReducedMatrix matrix){
+        double avg = averageCycleLength(matrix);
+
+        return Math.sqrt(getCycles(matrix)
+                .stream()
+                .map((c) -> ((c - avg) * (c - avg)))
+                .reduce(0.0, (x,y) -> x + y) / (getCycles(matrix).size() - 1));
+
     }
 
 }

@@ -48,6 +48,7 @@ public class DataView {
         List<TSPReducedMatrix> reduced = data.getFirst();
         List<Complexity> comp = data.getSecond();
 
+        // todo make sorting as method
         List<Binded> sorted = IntStream.range(0, reduced.size())
                 .mapToObj(i -> new Binded(reduced.get(i), comp.get(i))) // Create the instance
                 .sorted(Comparator.comparingInt(b -> b.complexity))              // Sort using a Comparator
@@ -70,6 +71,28 @@ public class DataView {
             ps.println();
         }
     }
+
+    public static void dot_diagram(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps){
+        List<TSPReducedMatrix> reduced = data.getFirst();
+        List<Complexity> comp = data.getSecond();
+
+        List<Binded> sorted = IntStream.range(0, reduced.size())
+                .mapToObj(i -> new Binded(reduced.get(i), comp.get(i))) // Create the instance
+                .sorted(Comparator.comparingInt(b -> b.complexity))              // Sort using a Comparator
+                .collect(Collectors.toList());
+
+        ps.println("Complexity;Min;Max;Avg;Dev;");
+        for (Binded b : sorted){
+            ps.print(String.format("%d;", b.complexity));
+            ps.print(String.format("%1$,.2f;", Parameters.minCycleLength(b.matr)));
+            ps.print(String.format("%1$,.2f;", Parameters.maxCycleLength(b.matr)));
+            ps.print(String.format("%1$,.2f;", Parameters.averageCycleLength(b.matr)));
+            ps.println(String.format("%1$,.2f;", Parameters.dispersion(b.matr)));
+        }
+
+    }
+
+
 
     private static class Binded implements Comparable<Binded>{
         TSPReducedMatrix matr;
