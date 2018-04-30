@@ -1,3 +1,5 @@
+package control;
+
 import control.Parameters;
 import model.TSPReducedMatrix;
 
@@ -8,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestParameters {
+public class ParametersTest {
 
     // Tested method:
     // private static List<Integer> getCycles(model.TSPReducedMatrix matrix)
