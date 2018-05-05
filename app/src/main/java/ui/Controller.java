@@ -27,12 +27,12 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class Controller {
-    private static final String INITIAL_PATH = "D://VKR/data";
+    private static final String INITIAL_PATH = "D://";
 
     public void onExperiment(ActionEvent actionEvent) {
         Task<Double> task = new Task<Double>() {
             @Override
-            protected Double call() throws Exception {
+            protected Double call() {
                 BindedData<TSPReducedMatrix, Complexity> bindedData =
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
 
@@ -75,7 +75,7 @@ public class Controller {
     }
 
     class ParamsPair extends Pair<ReducedMatrixParameter, String>{
-        public ParamsPair(ReducedMatrixParameter key, String value) {
+        ParamsPair(ReducedMatrixParameter key, String value) {
             super(key, value);
         }
         @Override
@@ -273,9 +273,7 @@ public class Controller {
             }
         };
         addTaskHandlers(complLoader, true);
-        complLoader.setOnSucceeded(event -> {
-            complexityDataset = complLoader.getValue();
-        });
+        complLoader.setOnSucceeded(event -> complexityDataset = complLoader.getValue());
         new Thread(complLoader).start();
 
         // Inialize tasks

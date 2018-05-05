@@ -10,6 +10,7 @@ public class PearsonCorrelation implements Correlation {
     */
     @Override
     public double count(List<Double> one, List<Double> another){
+        check(one, another);
         List<Double> dOne = deltas(one);
         List<Double> dAnother = deltas(another);
 
