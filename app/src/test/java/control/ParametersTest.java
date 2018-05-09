@@ -1,11 +1,9 @@
 package control;
 
-import control.Parameters;
 import model.TSPReducedMatrix;
-
 import org.junit.Assert;
 import org.junit.Test;
-import java.lang.reflect.Constructor;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +14,7 @@ public class ParametersTest {
     // private static List<Integer> getCycles(model.TSPReducedMatrix matrix)
 
     @Test
-    public void testGetCycles() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testGetCycles() {
 
         /// Test 1. Several cycles ///
         List<Integer>[] minRoutes = formMinRoute(
@@ -74,43 +72,11 @@ public class ParametersTest {
 
     }
 
-    // Tested method:
-    // @override public boolean equals(Object o) (Parameters.Cycles)
-
-    @Test
-    public void testCyclesEquals() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-
-        Constructor<Parameters> cParameters = Parameters.class.getDeclaredConstructor();
-        cParameters.setAccessible(true);
-
-        Parameters iParameters = cParameters.newInstance();
-
-        Constructor cCycles = iParameters.getClass().getDeclaredClasses()[0].getDeclaredConstructors()[0];
-
-        cCycles.setAccessible(true);
-
-        Object obj = new Object();
-        Object c327 = cCycles.newInstance(iParameters, new Integer[]{3, 2, 7});
-        Object c3278 = cCycles.newInstance(iParameters, new Integer[]{3, 2, 7, 8});
-        Object c372 = cCycles.newInstance(iParameters, new Integer[]{3, 7, 2});
-        Object c732 = cCycles.newInstance(iParameters, new Integer[]{7, 3, 2});
-        Object c273 = cCycles.newInstance(iParameters, new Integer[]{2, 7, 3});
-        Object cNull = cCycles.newInstance(iParameters, null);
-
-        Assert.assertEquals(c327, c273);
-        Assert.assertEquals(c273, c732);
-
-        Assert.assertNotEquals(c327, c3278);
-        Assert.assertNotEquals(c327, c372);
-        Assert.assertNotEquals(c273, cNull);
-        Assert.assertNotEquals(c732, obj);
-    }
-
     /// Private methods
     private void testGettingCycle(List<Integer>[] minRoutes, Integer... expected) {
 
         TSPReducedMatrix reducedMatrix = new TSPReducedMatrix(minRoutes);
-        List<Integer> actual = Parameters.getCycles(reducedMatrix);
+        List<Integer> actual = Parameters.cycleLength(reducedMatrix);
 
         Assert.assertEquals("Number of cycles is not equal", expected.length, actual.size());
 

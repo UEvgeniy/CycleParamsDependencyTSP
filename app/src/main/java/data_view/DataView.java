@@ -111,7 +111,7 @@ public class DataView {
 
     private static Map<Integer, Integer> countCycles(TSPReducedMatrix rm){
         Map<Integer, Integer> map = new HashMap<>();
-        List<Integer> cycles = Parameters.getCycles(rm);
+        List<Integer> cycles = Parameters.cycleLength(rm);
 
         for (Integer j : cycles){
             if (map.containsKey(j)){
