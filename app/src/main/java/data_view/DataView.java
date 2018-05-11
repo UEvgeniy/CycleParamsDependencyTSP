@@ -88,12 +88,10 @@ public class DataView {
             ps.print(String.format("%1$,.2f;", Parameters.minCycleLength(b.matr)));
             ps.print(String.format("%1$,.2f;", Parameters.maxCycleLength(b.matr)));
             ps.print(String.format("%1$,.2f;", Parameters.averageCycleLength(b.matr)));
-            ps.println(String.format("%1$,.2f;", Parameters.dispersion(b.matr)));
+            ps.println(String.format("%1$,.2f;", Parameters.deviation(b.matr)));
         }
 
     }
-
-
 
     private static class Binded implements Comparable<Binded>{
         TSPReducedMatrix matr;

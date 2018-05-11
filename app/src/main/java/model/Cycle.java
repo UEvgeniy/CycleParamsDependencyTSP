@@ -2,7 +2,11 @@ package model;
 
 public class Cycle{
 
-    private Integer[] cycle;
+    private final Integer[] cycle;
+
+    public Integer[] getCycle(){
+        return cycle;
+    }
 
     Cycle(Integer[] values){
         cycle = values;

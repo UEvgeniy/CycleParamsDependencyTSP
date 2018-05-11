@@ -132,7 +132,8 @@ public class Controller {
                 new ParamsPair(Parameters::sumCycleLength, "Sum of cycle length"),
                 new ParamsPair(Parameters::averageCycleLength, "Average Cycle Length"),
                 new ParamsPair(Parameters::maxCycleLength, "Max cycle length"),
-                new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max")
+                new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max"),
+                new ParamsPair(Parameters::avgConsistence, "Consistence")
                 //Parameters::cyclesNum, Parameters::uniqueCyclesNum, Parameters::sumCycleLength,
                 //Parameters::averageCycleLength, Parameters::maxCycleLength
         );
