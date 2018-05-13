@@ -33,4 +33,8 @@ public class Dataset<T> implements Serializable {
     public Set<Integer> getKeys(){
         return dataMap.keySet();
     }
+
+    public int size() {
+        return dataMap.size();
+    }
 }

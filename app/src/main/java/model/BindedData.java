@@ -27,4 +27,8 @@ public class BindedData<T, P> {
     public List<P> getSecond(){
         return second;
     }
+
+    public int size() {
+        return first.size();
+    }
 }

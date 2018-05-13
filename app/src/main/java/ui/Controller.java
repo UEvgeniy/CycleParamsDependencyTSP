@@ -1,10 +1,8 @@
 package ui;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import control.*;
 import data_view.DataView;
 import io.*;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -18,7 +16,6 @@ import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import javafx.util.Pair;
 import model.BindedData;
 import model.Complexity;
@@ -30,12 +27,12 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class Controller {
-    private static final String INITIAL_PATH = "D://VKR/data";
+    private static final String INITIAL_PATH = "D://vkr//data";
 
     public void onExperiment(ActionEvent actionEvent) {
         Task<Double> task = new Task<Double>() {
             @Override
-            protected Double call() throws Exception {
+            protected Double call() {
                 BindedData<TSPReducedMatrix, Complexity> bindedData =
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
 
@@ -78,7 +75,7 @@ public class Controller {
     }
 
     class ParamsPair extends Pair<ReducedMatrixParameter, String>{
-        public ParamsPair(ReducedMatrixParameter key, String value) {
+        ParamsPair(ReducedMatrixParameter key, String value) {
             super(key, value);
         }
         @Override
@@ -123,7 +120,8 @@ public class Controller {
                 "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
         //cbCorrelation.getItems().addAll("Pearson", "Spearman");
         //cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
-        cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes", "Serialize dataset");
+        cbTypeView.getItems().addAll("Distribution: cycles length", "List", "Serialize matrixes",
+                "Serialize dataset", "Basic params info", "Distribution: cycles to cities");
 
         cbCorrelation.setItems(FXCollections.observableArrayList(new PearsonCorrelation(),
                 new SpearmanCorrelation()));
@@ -134,7 +132,8 @@ public class Controller {
                 new ParamsPair(Parameters::sumCycleLength, "Sum of cycle length"),
                 new ParamsPair(Parameters::averageCycleLength, "Average Cycle Length"),
                 new ParamsPair(Parameters::maxCycleLength, "Max cycle length"),
-                new ParamsPair(Parameters::avgMultipleMaxLenght, "Average * Max")
+                new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max"),
+                new ParamsPair(Parameters::avgConsistence, "Consistence")
                 //Parameters::cyclesNum, Parameters::uniqueCyclesNum, Parameters::sumCycleLength,
                 //Parameters::averageCycleLength, Parameters::maxCycleLength
         );
@@ -233,6 +232,11 @@ public class Controller {
                 case 3:
                     browseFile(ds, fSaveData, win, false);
                     break;
+                case 4:
+                    browseFile(csv, fSaveData, win, false);
+                    break;
+                case 5:
+                    browseFile(csv, fSaveData, win, false);
             }
         }
     }
@@ -272,9 +276,7 @@ public class Controller {
             }
         };
         addTaskHandlers(complLoader, true);
-        complLoader.setOnSucceeded(event -> {
-            complexityDataset = complLoader.getValue();
-        });
+        complLoader.setOnSucceeded(event -> complexityDataset = complLoader.getValue());
         new Thread(complLoader).start();
 
         // Inialize tasks
@@ -399,19 +401,33 @@ public class Controller {
                 BindedData<TSPReducedMatrix, Complexity> bindedData =
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
 
-
+                PrintStream stream;
                 switch (saveIndex.get()){
                     case 0:
-                        DataView.table(bindedData, new PrintStream(fSaveData.get()), ";");
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.distrCyclesLen(bindedData, new PrintStream(fSaveData.get()), ";");
+                        stream.close();
                         break;
                     case 1:
+                        stream = new PrintStream(fSaveData.get());
                         DataView.list(bindedData, new PrintStream(fSaveData.get()));
+                        stream.close();
                         break;
                     case 2:
                         new ObjReducedMatrixesSaver(reducedMatrixDataset, fSaveData.get()).save();
                         break;
                     case 3:
                         new ObjReducedDatasetSaver(reducedMatrixDataset, fSaveData.get()).save();
+                        break;
+                    case 4:
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.dot_diagram(bindedData, new PrintStream(fSaveData.get()));
+                        stream.close();
+                        break;
+                    case 5:
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.distrCyclesToCities(bindedData, new PrintStream(fSaveData.get()), ";");
+                        stream.close();
                         break;
                 }
                 return null;
