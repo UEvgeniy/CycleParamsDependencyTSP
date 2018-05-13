@@ -27,7 +27,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class Controller {
-    private static final String INITIAL_PATH = "D://";
+    private static final String INITIAL_PATH = "D://vkr//data";
 
     public void onExperiment(ActionEvent actionEvent) {
         Task<Double> task = new Task<Double>() {
@@ -120,8 +120,8 @@ public class Controller {
                 "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
         //cbCorrelation.getItems().addAll("Pearson", "Spearman");
         //cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
-        cbTypeView.getItems().addAll("Table", "List", "Serialize matrixes",
-                "Serialize dataset", "Basic params info");
+        cbTypeView.getItems().addAll("Distribution: cycles length", "List", "Serialize matrixes",
+                "Serialize dataset", "Basic params info", "Distribution: cycles to cities");
 
         cbCorrelation.setItems(FXCollections.observableArrayList(new PearsonCorrelation(),
                 new SpearmanCorrelation()));
@@ -235,6 +235,8 @@ public class Controller {
                 case 4:
                     browseFile(csv, fSaveData, win, false);
                     break;
+                case 5:
+                    browseFile(csv, fSaveData, win, false);
             }
         }
     }
@@ -399,13 +401,17 @@ public class Controller {
                 BindedData<TSPReducedMatrix, Complexity> bindedData =
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
 
-
+                PrintStream stream;
                 switch (saveIndex.get()){
                     case 0:
-                        DataView.table(bindedData, new PrintStream(fSaveData.get()), ";");
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.distrCyclesLen(bindedData, new PrintStream(fSaveData.get()), ";");
+                        stream.close();
                         break;
                     case 1:
+                        stream = new PrintStream(fSaveData.get());
                         DataView.list(bindedData, new PrintStream(fSaveData.get()));
+                        stream.close();
                         break;
                     case 2:
                         new ObjReducedMatrixesSaver(reducedMatrixDataset, fSaveData.get()).save();
@@ -414,8 +420,13 @@ public class Controller {
                         new ObjReducedDatasetSaver(reducedMatrixDataset, fSaveData.get()).save();
                         break;
                     case 4:
-                        PrintStream stream = new PrintStream(fSaveData.get());
-                        DataView.dot_diagram(bindedData, stream);
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.dot_diagram(bindedData, new PrintStream(fSaveData.get()));
+                        stream.close();
+                        break;
+                    case 5:
+                        stream = new PrintStream(fSaveData.get());
+                        DataView.distrCyclesToCities(bindedData, new PrintStream(fSaveData.get()), ";");
                         stream.close();
                         break;
                 }

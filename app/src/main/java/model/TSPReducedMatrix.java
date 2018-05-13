@@ -6,11 +6,15 @@ import java.util.*;
 public class TSPReducedMatrix implements Serializable{
 
     private static final long serialVersionUID = 4240191732724871683L;
-    private List<Integer>[] minRoutes;
+    private final List<Integer>[] minRoutes;
 
     public TSPReducedMatrix(List<Integer>[] minRoutes){
         Objects.requireNonNull(minRoutes);
         this.minRoutes = minRoutes;
+    }
+
+    public int size(){
+        return minRoutes.length;
     }
 
     public List<Integer>[] getMinRoutes() {

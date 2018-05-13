@@ -3,6 +3,7 @@ package data_view;
 import control.Parameters;
 import model.BindedData;
 import model.Complexity;
+import model.Cycle;
 import model.TSPReducedMatrix;
 import util.Utils;
 
@@ -15,6 +16,21 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DataView {
+    private static class Binded implements Comparable<Binded>{
+        TSPReducedMatrix matr;
+        Integer complexity;
+        private Binded(TSPReducedMatrix m, Complexity c){
+            this.matr = m;
+            this.complexity = c.get();
+        }
+
+        @Override
+        public int compareTo(Binded o) {
+            return complexity - o.complexity;
+        }
+    }
+
+
     public static void list(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps) {
 
         List<TSPReducedMatrix> reduced = data.getFirst();
@@ -43,7 +59,7 @@ public class DataView {
 
     }
 
-    public static void table(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps, String sep){
+    public static void distrCyclesLen(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps, String sep){
 
         List<TSPReducedMatrix> reduced = data.getFirst();
         List<Complexity> comp = data.getSecond();
@@ -64,7 +80,7 @@ public class DataView {
             map = Utils.sort(map, Utils.Compare::byKeys);
 
 
-            for (int key = 1; key < b.matr.getMinRoutes().length; key++){ // todo change
+            for (int key = 0; key < b.matr.size(); key++){ // todo change
                 ps.print(map.get(key) == null ? 0 : map.get(key));
                 ps.print(sep);
             }
@@ -93,20 +109,36 @@ public class DataView {
 
     }
 
-    private static class Binded implements Comparable<Binded>{
-        TSPReducedMatrix matr;
-        Integer complexity;
-        private Binded(TSPReducedMatrix m, Complexity c){
-            this.matr = m;
-            this.complexity = c.get();
-        }
+    public static void distrCyclesToCities(BindedData<TSPReducedMatrix, Complexity> data, PrintStream ps, String sep){
+        List<TSPReducedMatrix> reduced = data.getFirst();
+        List<Complexity> comp = data.getSecond();
 
-        @Override
-        public int compareTo(Binded o) {
-            return complexity - o.complexity;
+        List<Binded> sorted = IntStream.range(0, reduced.size())
+                .mapToObj(i -> new Binded(reduced.get(i), comp.get(i))) // Create the instance
+                .sorted(Comparator.comparingInt(b -> b.complexity))              // Sort using a Comparator
+                .collect(Collectors.toList());
+
+
+        for (Binded b : sorted) {
+            ps.print(b.complexity);
+            ps.print(sep);
+
+            Map<Integer, Integer> map = countCyclesOnOneCity(b.matr);
+            map = Utils.sort(map, Utils.Compare::byKeys);
+
+
+            for (int key = 1; key < b.matr.size() * 2; key++){ // todo change
+                ps.print(map.get(key) == null ? 0 : map.get(key));
+                ps.print(sep);
+            }
+            ps.println();
+
         }
     }
 
+
+
+    // Отображение {Длина цикла} -> {Их количество в индивидуальной TSP}
     private static Map<Integer, Integer> countCycles(TSPReducedMatrix rm){
         Map<Integer, Integer> map = new HashMap<>();
         List<Integer> cycles = Parameters.cycleLength(rm);
@@ -120,5 +152,29 @@ public class DataView {
             }
         }
         return map;
+    }
+
+    // Отображение {Количество циклов, прохождящих через конкретный город} -> {Их количество в индивидуальной TSP}
+    private static Map<Integer, Integer> countCyclesOnOneCity(TSPReducedMatrix rm){
+        // Массив количества циклов, проходящих через i-тую вершину
+        int[] cyclesNum = new int[rm.size()];
+        for (Cycle cycle : rm.getCycles()){
+            for (int city : cycle.getCycle()){
+                cyclesNum[city]++;
+            }
+        }
+
+        Map<Integer, Integer> res = new HashMap<>();
+
+        for (int i : cyclesNum){
+            if (res.containsKey(i)){
+                res.put(i, res.get(i) + 1);
+            }
+            else{
+                res.put(i, 1);
+            }
+        }
+
+        return res;
     }
 }
