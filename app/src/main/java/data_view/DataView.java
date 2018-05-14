@@ -97,14 +97,15 @@ public class DataView {
                 .sorted(Comparator.comparingInt(b -> b.complexity))              // Sort using a Comparator
                 .collect(Collectors.toList());
 
-        ps.println("Complexity;Num;Min;Max;Avg;Dev;");
+        ps.println("Complexity;Num;Min;Max;Avg;Dev;Cons");
         for (Binded b : sorted){
             ps.print(String.format("%d;", b.complexity));
             ps.print(String.format("%1$,.2f;", Parameters.cyclesNum(b.matr)));
             ps.print(String.format("%1$,.2f;", Parameters.minCycleLength(b.matr)));
             ps.print(String.format("%1$,.2f;", Parameters.maxCycleLength(b.matr)));
             ps.print(String.format("%1$,.2f;", Parameters.averageCycleLength(b.matr)));
-            ps.println(String.format("%1$,.2f;", Parameters.deviation(b.matr)));
+            ps.print(String.format("%1$,.2f;", Parameters.deviation(b.matr)));
+            ps.println(String.format("%1$,.2f;", Parameters.avgConsistence(b.matr)));
         }
 
     }
