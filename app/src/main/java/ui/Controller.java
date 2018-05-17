@@ -113,7 +113,6 @@ public class Controller {
     /**
      * Initialize operations
      */
-    // todo refactor
     public void initialize(){
         // Comboboxes
         cbLoadedData.getItems().addAll(
@@ -135,38 +134,12 @@ public class Controller {
                 new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max"),
                 new ParamsPair(Parameters::deviation, "Deviation"),
                 new ParamsPair(Parameters::avgConsistence, "Consistence")
-                //Parameters::cyclesNum, Parameters::uniqueCyclesNum, Parameters::sumCycleLength,
-                //Parameters::averageCycleLength, Parameters::maxCycleLength
         );
-        //Pair<ReducedMatrixParameter, String> as = new Pair<>()
-        //ReducedMatrixParameter as = Parameters::cyclesNum;
-        //cbCycleParam = new ComboBox<>(list);
-        //cbCycleParam.getSelectionModel().selectFirst();
         cbCycleParam.setItems(list);
-        /*cbCycleParam.setCellFactory(new Callback<ListView<String>,ListCell<String>>(){
-
-            @Override
-            public ListCell<String> call(ListView<String> p) {
-
-                return new ListCell<String>(){
-                    @Override
-                    protected void updateItem(String t, boolean bln) {
-                        super.updateItem(t, bln);
-
-                        if(t != null){
-                            setText(t + ":" + t);
-                        }else{
-                            setText(null);
-                        }
-                    }
-                };
-            }
-        });*/
 
         for (ComboBox cb : new ComboBox[]{cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation}){
             cb.getSelectionModel().selectFirst();
         }
-
 
         // Binding data
         fLoadMatrixes = new SimpleObjectProperty<>();

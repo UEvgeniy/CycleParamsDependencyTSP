@@ -3,6 +3,7 @@ package control;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class SpearmanCorrelation implements Correlation {
 
@@ -15,7 +16,6 @@ public class SpearmanCorrelation implements Correlation {
 
         int size = first.length;
 
-        // todo one line
         double summa = 0;
         for (int i = 0; i < size; i++){
             summa += (first[i] - second[i]) * (first[i] - second[i]);
