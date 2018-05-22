@@ -1,22 +1,20 @@
 package ui;
 
 import control.*;
+import control.functionals.*;
 import data_view.DataView;
 import io.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javafx.util.Pair;
 import model.BindedData;
 import model.Complexity;
 import model.Dataset;
@@ -27,9 +25,129 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class Controller {
-    private static final String INITIAL_PATH = "D://vkr//data";
+
+    /************************* Fields *************************/
+    private static final String INITIAL_BROWSE_PATH = "C://";
+    private Dataset<TSPReducedMatrix> reducedMatrixDataset;
+    private Dataset<Complexity> complexityDataset;
+
+    /********************* UI controllers *********************/
+    // Import Data
+    @FXML
+    public ComboBox<ImportDataType> cbImportData;
+    public Button btnBrowseMatrixes, btnBrowseComplexities, btnImport, btnCancel;
+    public TextField tfLoadMatrixes, tfLoadComplexities;
+    public Label lblFolder, lblFile, lblNumEl;
+    public CheckBox cbSubfolders;
+    public ProgressBar progressBar;
+
+    // Export Data
+    @FXML
+    public TitledPane paneExport;
+    public ComboBox<ExportDataType> cbExportData;
+    public Button  btnBrSave;
+    public TextField tfSave;
+
+    // Correlation coefficient
+    @FXML
+    public TitledPane paneCorrelation;
+    public ComboBox<ReducedMatrixFunctional> cbCycleParam;
+    public ComboBox<Correlation> cbCorrelation;
+
+    /*********************** Properties ***********************/
+
+    private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
+    private BooleanProperty subfolders;
+    private IntegerProperty loadIndex, saveIndex, size;
+    private Task<Dataset<TSPReducedMatrix>> task;
+
+
+    /************************ Initialize **********************/
+    public void initialize(){
+        initComboboxes();
+        initFieldsBindProperties();
+        initControllersProperties();
+    }
+
+    private void initComboboxes(){
+        // Combo boxes
+        cbImportData.setItems(FXCollections.observableArrayList(
+                ImportDataType.TXT_MATRIXES,
+                ImportDataType.OBJ_MATRIXES,
+                ImportDataType.OBJ_DATASET)
+        );
+
+        cbExportData.setItems(FXCollections.observableArrayList(
+                ExportDataType.DISTR_CYCLE_LEN,
+                ExportDataType.DISTR_CYCLE_TO_CITY,
+                ExportDataType.SERIALIZE_MATRIXES,
+                ExportDataType.SERIALIZE_DATASET,
+                ExportDataType.LIST,
+                ExportDataType.TABLE_FUNCTIONS
+        ));
+
+        cbCycleParam.setItems(FXCollections.observableArrayList(
+                new NumberOfCycles(),
+                new NumberOfUniqueCycles(),
+                new MaxCycleLength(),
+                new MinCycleLength(),
+                new AvgCycleLength(),
+                new CycleLenDeviation(),
+                new TotalCycleLength(),
+                new AvgNumCyclesThroughCity()));
+
+        cbCorrelation.setItems(FXCollections.observableArrayList(
+                new PearsonCorrelation(),
+                new SpearmanCorrelation()));
+
+        for (ComboBox cb : new ComboBox[]{cbImportData, cbExportData, cbCycleParam, cbCorrelation}){
+            cb.getSelectionModel().selectFirst();
+        }
+    }
+
+    private void initFieldsBindProperties(){
+        reducedMatrixDataset = new Dataset<>();
+        complexityDataset = new Dataset<>();
+
+        fLoadMatrixes = new SimpleObjectProperty<>();
+        fSaveData = new SimpleObjectProperty<>();
+        fLoadComplexity = new SimpleObjectProperty<>();
+        subfolders = new SimpleBooleanProperty();
+        loadIndex = new SimpleIntegerProperty();
+        saveIndex = new SimpleIntegerProperty();
+
+        size = new SimpleIntegerProperty(0);
+
+        tfLoadMatrixes.textProperty().bind(fLoadMatrixes.asString());
+        tfLoadComplexities.textProperty().bind(fLoadComplexity.asString());
+        tfSave.textProperty().bind(fSaveData.asString());
+        subfolders.bind(cbSubfolders.selectedProperty());
+        loadIndex.bind(cbImportData.getSelectionModel().selectedIndexProperty());
+        saveIndex.bind(cbExportData.getSelectionModel().selectedIndexProperty());
+        lblFolder.textProperty().bind(
+                Bindings.format("%s:", cbImportData.getSelectionModel().selectedItemProperty())
+        );
+        lblNumEl.textProperty().bind(
+                Bindings.format("%d matrixes loaded", size)
+        );
+    }
+
+    private void initControllersProperties(){
+        // Import
+        btnCancel.setVisible(false);
+        btnCancel.setOnAction(ImportCore.onCancel(task));
+
+        // Export
+        paneExport.setDisable(true);
+
+        // Correlation
+        paneCorrelation.setDisable(true);
+
+    }
+    /********************** Add listeners *********************/
 
     public void onExperiment(ActionEvent actionEvent) {
+
         Task<Double> task = new Task<Double>() {
             @Override
             protected Double call() {
@@ -39,7 +157,7 @@ public class Controller {
                 List<Double> paramsOfReducedMatrix =
                         TSPConverter.toParamsDataset(
                                 bindedData.getFirst(),
-                                cbCycleParam.getValue().getKey());
+                                cbCycleParam.getValue());
 
                 List<Double> lComplexities =
                         TSPConverter.toDouble(bindedData.getSecond());
@@ -49,7 +167,7 @@ public class Controller {
         };
 
         task.setOnSucceeded(event ->
-                Util.alert(
+                UiUtils.alert(
                         Alert.AlertType.INFORMATION,
                         "Experiments compeleted",
                         String.format("The result correlation is %1$,.2f", task.getValue()),
@@ -59,112 +177,6 @@ public class Controller {
         new Thread(task).start();
     }
 
-
-    /**
-     *  Class Util with helping methods
-     */
-    static class Util{
-        static void alert(Alert.AlertType type, String header, String text, ButtonType... buttons){
-            Alert al = new Alert(type, text, buttons);
-            al.setHeaderText(header);
-            al.showAndWait();
-        }
-        static FileChooser.ExtensionFilter initFilter(String desc, String... ext){
-            return new FileChooser.ExtensionFilter(desc, ext);
-        }
-    }
-
-    class ParamsPair extends Pair<ReducedMatrixParameter, String>{
-        ParamsPair(ReducedMatrixParameter key, String value) {
-            super(key, value);
-        }
-        @Override
-        public String toString() {
-            return getValue();
-        }
-    }
-
-    // Properties
-    private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
-    private BooleanProperty subfolders;
-    private Dataset<TSPReducedMatrix> reducedMatrixDataset;
-    private Dataset<Complexity> complexityDataset;
-    private IntegerProperty loadIndex, saveIndex, size;
-    private  Task<Dataset<TSPReducedMatrix>> task;
-
-    // Combo Boxes
-    @FXML
-    public ComboBox<String> cbLoadedData, cbTypeView;
-    public ComboBox<ParamsPair> cbCycleParam;
-    public ComboBox<Correlation> cbCorrelation;
-    @FXML
-    public Button btnBrMatr, btnBrSave, btnBrCompl, btnLoad, cancelBtn;
-    @FXML
-    public TextField tfLoad, tfSave, tfLoadCompl;
-    @FXML
-    public Pane paneFolder, paneFile;
-    @FXML
-    public Label lblFolder, lblFile, lblNumEl;
-    @FXML
-    public CheckBox cbSubfolders;
-    @FXML
-    public ProgressBar progressBar;
-
-    /**
-     * Initialize operations
-     */
-    public void initialize(){
-        // Comboboxes
-        cbLoadedData.getItems().addAll(
-                "Txt matrixes files", "Obj matrixes files", "Obj dataset file");
-        //cbCorrelation.getItems().addAll("Pearson", "Spearman");
-        //cbCycleParam.getItems().addAll("Cycle length", "Number of cycles");
-        cbTypeView.getItems().addAll("Distribution: cycles length", "List", "Serialize matrixes",
-                "Serialize dataset", "Basic params info", "Distribution: cycles to cities");
-
-        cbCorrelation.setItems(FXCollections.observableArrayList(new PearsonCorrelation(),
-                new SpearmanCorrelation()));
-
-        ObservableList<ParamsPair> list = FXCollections.observableArrayList(
-                new ParamsPair(Parameters::cyclesNum, "Number of cycles"),
-                new ParamsPair(Parameters::uniqueCyclesNum, "Number of unique cycles"),
-                new ParamsPair(Parameters::sumCycleLength, "Sum of cycle length"),
-                new ParamsPair(Parameters::averageCycleLength, "Average Cycle Length"),
-                new ParamsPair(Parameters::maxCycleLength, "Max cycle length"),
-                new ParamsPair(Parameters::avgMultipleMaxLength, "Average * Max"),
-                new ParamsPair(Parameters::deviation, "Deviation"),
-                new ParamsPair(Parameters::avgConsistence, "Consistence")
-        );
-        cbCycleParam.setItems(list);
-
-        for (ComboBox cb : new ComboBox[]{cbLoadedData, cbTypeView, cbCycleParam, cbCorrelation}){
-            cb.getSelectionModel().selectFirst();
-        }
-
-        // Binding data
-        fLoadMatrixes = new SimpleObjectProperty<>();
-        fSaveData = new SimpleObjectProperty<>();
-        fLoadComplexity = new SimpleObjectProperty<>();
-        subfolders = new SimpleBooleanProperty();
-        loadIndex = new SimpleIntegerProperty();
-        saveIndex = new SimpleIntegerProperty();
-        reducedMatrixDataset = new Dataset<>();
-        size = new SimpleIntegerProperty(0);
-
-        tfLoad.textProperty().bind(fLoadMatrixes.asString());
-        tfLoadCompl.textProperty().bind(fLoadComplexity.asString());
-        tfSave.textProperty().bind(fSaveData.asString());
-        subfolders.bind(cbSubfolders.selectedProperty());
-        loadIndex.bind(cbLoadedData.getSelectionModel().selectedIndexProperty());
-        saveIndex.bind(cbTypeView.getSelectionModel().selectedIndexProperty());
-        lblFolder.textProperty().bind(
-                Bindings.format("%s:",cbLoadedData.getSelectionModel().selectedItemProperty())
-        );
-        lblNumEl.textProperty().bind(
-                Bindings.format("%d matrixes loaded", size)
-        );
-    }
-
     /**
      * Browse button
      */
@@ -172,11 +184,11 @@ public class Controller {
 
         Window win = ((Node) actionEvent.getSource()).getScene().getWindow();
         Button sourse = (Button) actionEvent.getSource();
-        FileChooser.ExtensionFilter txt = Util.initFilter("TXT file", "*.txt");
-        FileChooser.ExtensionFilter csv = Util.initFilter("CSV file", "*.csv");
-        FileChooser.ExtensionFilter ds = Util.initFilter("Dataset file", "*.ds");
+        FileChooser.ExtensionFilter txt = UiUtils.initFilter("TXT file", "*.txt");
+        FileChooser.ExtensionFilter csv = UiUtils.initFilter("CSV file", "*.csv");
+        FileChooser.ExtensionFilter ds = UiUtils.initFilter("Dataset file", "*.ds");
 
-        if (sourse == btnBrMatr){
+        if (sourse == btnBrowseMatrixes){
             switch (loadIndex.get()){
                 case 0:
                     browseDir(fLoadMatrixes, win);
@@ -189,7 +201,7 @@ public class Controller {
                     break;
             }
         }
-        else if(sourse == btnBrCompl){
+        else if(sourse == btnBrowseComplexities){
             browseFile(txt, fLoadComplexity, win, true);
         }
         else if (sourse == btnBrSave){
@@ -217,7 +229,7 @@ public class Controller {
     private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file,
                             Window win, boolean isOpen){
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File(INITIAL_PATH));
+        fileChooser.setInitialDirectory(new File(INITIAL_BROWSE_PATH));
         fileChooser.getExtensionFilters().add(filter);
 
         file.setValue(isOpen ?
@@ -226,7 +238,7 @@ public class Controller {
     }
     private void browseDir(ObjectProperty<File> file, Window win){
         DirectoryChooser dirChooser = new DirectoryChooser();
-        dirChooser.setInitialDirectory(new File(INITIAL_PATH));
+        dirChooser.setInitialDirectory(new File(INITIAL_BROWSE_PATH));
         file.setValue(dirChooser.showDialog(win));
     }
 
@@ -258,7 +270,7 @@ public class Controller {
             initTask();
         }
         catch (NullPointerException e){
-            Util.alert(
+            UiUtils.alert(
                     Alert.AlertType.ERROR,
                     "Some paths are null",
                     "Please, fill all the paths",
@@ -271,10 +283,19 @@ public class Controller {
         progressBar.progressProperty().bind(task.progressProperty());
 
         task.setOnSucceeded((e) -> {
-            cancelBtn.setVisible(false);
+            btnCancel.setVisible(false);
             reducedMatrixDataset = task.getValue();
+
+            if (reducedMatrixDataset == null || reducedMatrixDataset.size() == 0){
+                UiUtils.alert(Alert.AlertType.ERROR, "No data to load", "...", ButtonType.OK);
+                return;
+            }
+
+            paneExport.setDisable(false);
+            paneCorrelation.setDisable(false);
+
             size.setValue(reducedMatrixDataset.getKeys().size());
-            Util.alert(
+            UiUtils.alert(
                     Alert.AlertType.INFORMATION,
                     "Datasets successfully loaded",
                     String.format("%d elements loaded for %2$,.2f sec",
@@ -286,13 +307,9 @@ public class Controller {
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();
-        cancelBtn.setVisible(true);
+        btnCancel.setVisible(true);
     }
-    public void onCancel(ActionEvent actionEvent) {
-        if (task != null && task.isRunning())
-            task.cancel();
-        cancelBtn.setVisible(false);
-    }
+
 
 
     /**
@@ -330,7 +347,7 @@ public class Controller {
     private void addTaskHandlers(Task t, boolean interrupt){
         // Add handlers
         t.setOnFailed(event -> {
-            Util.alert(
+            UiUtils.alert(
                 Alert.AlertType.ERROR,
                 "Some paths are invalid",
                 "Please, check all paths",
@@ -338,16 +355,16 @@ public class Controller {
             progressBar.progressProperty().unbind();
             progressBar.setProgress(0);
             if (interrupt){
-                onCancel(null);
+                btnCancel.fire();
             }
                 });
 
         t.setOnCancelled(
                 event -> {
-                    cancelBtn.setVisible(false);
+                    btnCancel.setVisible(false);
                     progressBar.progressProperty().unbind();
                     progressBar.setProgress(0);
-                    Util.alert(
+                    UiUtils.alert(
                             Alert.AlertType.INFORMATION,
                             "Loading data was cancelled",
                             "",
@@ -361,7 +378,7 @@ public class Controller {
      */
     public void onSaveDataView(ActionEvent actionEvent) {
         if (reducedMatrixDataset.getKeys().isEmpty() || complexityDataset.getKeys().isEmpty()){
-            Util.alert(
+            UiUtils.alert(
                     Alert.AlertType.ERROR,
                     "No data to save",
                     "Please, load data first",
@@ -408,7 +425,7 @@ public class Controller {
             }
         };
 
-        task.setOnSucceeded(event -> Util.alert(
+        task.setOnSucceeded(event -> UiUtils.alert(
                 Alert.AlertType.INFORMATION,
                 "Data saved",
                 "Data saved in file " + fSaveData.get().getName(),
@@ -418,5 +435,4 @@ public class Controller {
         t.setDaemon(true);
         t.start();
     }
-
 }

@@ -10,73 +10,78 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="430.0" prefWidth="647.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.Controller">
-   <children>
-      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" prefHeight="205.0" prefWidth="630.0" text="Import Data">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="208.0" prefWidth="628.0">
-               <children>
-                  <Label layoutY="19.0" text="Loaded data:">
-                     <padding>
-                        <Insets left="10.0" />
-                     </padding>
-                  </Label>
-                  <ComboBox fx:id="cbLoadedData" layoutX="155.0" layoutY="13.0" onAction="#onLoadedDataSelected" prefWidth="150.0" promptText="Type of data" style="-fx-background-radius: 10;" />
-                  <CheckBox fx:id="cbSubfolders" layoutX="322.0" layoutY="19.0" mnemonicParsing="false" text="Include subfolders" />
-                  <Label fx:id="lblFolder" layoutY="63.0" text="Matrixes path:">
-                     <padding>
-                        <Insets left="10.0" />
-                     </padding>
-                  </Label>
-                  <TextField fx:id="tfLoad" editable="false" layoutX="155.0" layoutY="57.0" promptText="Folder path..." />
-                  <Button fx:id="btnBrMatr" layoutX="326.0" layoutY="57.0" mnemonicParsing="false" onAction="#onBrowse" style="-fx-background-radius: 10;" text="Browse..." />
-                  <Label fx:id="lblFile" layoutY="104.0" text="Complexity path:">
-                     <padding>
-                        <Insets left="10.0" />
-                     </padding>
-                  </Label>
-                  <TextField fx:id="tfLoadCompl" editable="false" layoutX="155.0" layoutY="98.0" promptText="File path..." />
-                  <Button fx:id="btnBrCompl" layoutX="326.0" layoutY="98.0" mnemonicParsing="false" onAction="#onBrowse" style="-fx-background-radius: 10;" text="Browse..." />
-                  <Button fx:id="btnLoad" layoutX="155.0" layoutY="140.0" mnemonicParsing="false" onAction="#onLoadData" prefWidth="150.0" style="-fx-background-radius: 10;" text="Load" />
-                  <Button fx:id="cancelBtn" layoutX="8.0" layoutY="140.0" mnemonicParsing="false" onAction="#onCancel" prefWidth="144.0" style="-fx-background-radius: 10;" text="Cancel" />
-                  <ProgressBar fx:id="progressBar" layoutX="323.0" layoutY="146.0" prefWidth="150.0" progress="0.0" />
-                  <Label fx:id="lblNumEl" layoutX="489.0" layoutY="146.0" text="0 matrixes" />
-               </children>
-            </AnchorPane>
-        </content>
-      </TitledPane>
-      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="219.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="110.0" prefWidth="630.0" text="Export Data">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="93.0" prefWidth="628.0">
-               <children>
-                  <ComboBox fx:id="cbTypeView" layoutX="7.0" layoutY="18.0" prefWidth="180.0" promptText="Type of data" style="-fx-background-radius: 10;">
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </ComboBox>
-                  <TextField fx:id="tfSave" editable="false" layoutX="197.0" layoutY="18.0" prefWidth="212.0" promptText="File path..." />
-                  <Button fx:id="btnBrSave" layoutX="416.0" layoutY="18.0" mnemonicParsing="false" onAction="#onBrowse" style="-fx-background-radius: 10;" text="Browse..." />
-                  <Button layoutX="498.0" layoutY="18.0" mnemonicParsing="false" onAction="#onSaveDataView" prefWidth="100.0" style="-fx-background-radius: 10;" text="Export" />
-               </children>
-            </AnchorPane>
-        </content>
-         <padding>
-            <Insets top="10.0" />
-         </padding>
-      </TitledPane>
-      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="329.0" minWidth="-Infinity" prefHeight="98.0" prefWidth="630.0" text="Correlation Coefficient">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="62.0" prefWidth="630.0">
-               <children>
-                  <ComboBox fx:id="cbCycleParam" layoutX="6.0" layoutY="13.0" prefWidth="180.0" promptText="Cycle parameter" style="-fx-background-radius: 10;" />
-                  <ComboBox fx:id="cbCorrelation" layoutX="220.0" layoutY="13.0" prefWidth="180.0" promptText="Correlation" style="-fx-background-radius: 10;" />
-                  <Button layoutX="437.0" layoutY="13.0" mnemonicParsing="false" onAction="#onExperiment" prefWidth="180.0" style="-fx-background-radius: 10;" text="Count" />
-               </children>
-            </AnchorPane>
-        </content>
-         <padding>
-            <Insets top="10.0" />
-         </padding>
-      </TitledPane>
-   </children>
+<AnchorPane prefHeight="430.0" prefWidth="647.0" xmlns="http://javafx.com/javafx/8.0.121"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.Controller">
+    <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" prefHeight="205.0"
+                prefWidth="630.0" text="Import Data">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="208.0" prefWidth="628.0">
+            <Label layoutY="19.0" text="Loaded data:">
+                <padding>
+                    <Insets left="10.0"/>
+                </padding>
+            </Label>
+            <ComboBox fx:id="cbImportData" layoutX="155.0" layoutY="13.0" onAction="#onLoadedDataSelected"
+                      prefWidth="150.0" promptText="Type of data" style="-fx-background-radius: 10;"/>
+            <CheckBox fx:id="cbSubfolders" layoutX="322.0" layoutY="19.0" mnemonicParsing="false"
+                      text="Include subfolders"/>
+            <Label fx:id="lblFolder" layoutY="63.0" text="Matrixes path:">
+                <padding>
+                    <Insets left="10.0"/>
+                </padding>
+            </Label>
+            <TextField fx:id="tfLoadMatrixes" editable="false" layoutX="155.0" layoutY="57.0" promptText="Folder path..."/>
+            <Button fx:id="btnBrowseMatrixes" layoutX="326.0" layoutY="57.0" mnemonicParsing="false" onAction="#onBrowse"
+                    style="-fx-background-radius: 10;" text="Browse..."/>
+            <Label fx:id="lblFile" layoutY="104.0" text="Complexity path:">
+                <padding>
+                    <Insets left="10.0"/>
+                </padding>
+            </Label>
+            <TextField fx:id="tfLoadComplexities" editable="false" layoutX="155.0" layoutY="98.0"
+                       promptText="File path..."/>
+            <Button fx:id="btnBrowseComplexities" layoutX="326.0" layoutY="98.0" mnemonicParsing="false" onAction="#onBrowse"
+                    style="-fx-background-radius: 10;" text="Browse..."/>
+            <Button fx:id="btnImport" layoutX="155.0" layoutY="140.0" mnemonicParsing="false" onAction="#onLoadData"
+                    prefWidth="150.0" style="-fx-background-radius: 10;" text="Load"/>
+            <Button fx:id="btnCancel" layoutX="8.0" layoutY="140.0" mnemonicParsing="false"
+                    prefWidth="144.0" style="-fx-background-radius: 10;" text="Cancel"/>
+            <ProgressBar fx:id="progressBar" layoutX="323.0" layoutY="146.0" prefWidth="150.0" progress="0.0"/>
+            <Label fx:id="lblNumEl" layoutX="489.0" layoutY="146.0" text="0 matrixes"/>
+        </AnchorPane>
+    </TitledPane>
+    <TitledPane fx:id="paneExport" animated="false" collapsible="false" layoutX="14.0" layoutY="219.0" maxHeight="1.7976931348623157E308"
+                maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="110.0"
+                prefWidth="630.0" text="Export Data">
+        <padding>
+            <Insets top="10.0"/>
+        </padding>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="93.0" prefWidth="628.0">
+            <ComboBox fx:id="cbExportData" layoutX="7.0" layoutY="18.0" prefWidth="180.0"
+                      promptText="Type of data" style="-fx-background-radius: 10;">
+                <opaqueInsets>
+                    <Insets/>
+                </opaqueInsets>
+            </ComboBox>
+            <TextField fx:id="tfSave" editable="false" layoutX="197.0" layoutY="18.0" prefWidth="212.0"
+                       promptText="File path..."/>
+            <Button fx:id="btnBrSave" layoutX="416.0" layoutY="18.0" mnemonicParsing="false"
+                    onAction="#onBrowse" style="-fx-background-radius: 10;" text="Browse..."/>
+            <Button layoutX="498.0" layoutY="18.0" mnemonicParsing="false" onAction="#onSaveDataView"
+                    prefWidth="100.0" style="-fx-background-radius: 10;" text="Export"/>
+        </AnchorPane>
+    </TitledPane>
+    <TitledPane fx:id="paneCorrelation" animated="false" collapsible="false" layoutX="14.0" layoutY="329.0" minWidth="-Infinity"
+                prefHeight="98.0" prefWidth="630.0" text="Correlation Coefficient">
+        <padding>
+            <Insets top="10.0"/>
+        </padding>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="62.0" prefWidth="630.0">
+            <ComboBox fx:id="cbCycleParam" layoutX="6.0" layoutY="13.0" prefWidth="180.0"
+                      promptText="Cycle parameter" style="-fx-background-radius: 10;"/>
+            <ComboBox fx:id="cbCorrelation" layoutX="220.0" layoutY="13.0" prefWidth="180.0"
+                      promptText="Correlation" style="-fx-background-radius: 10;"/>
+            <Button layoutX="437.0" layoutY="13.0" mnemonicParsing="false" onAction="#onExperiment"
+                    prefWidth="180.0" style="-fx-background-radius: 10;" text="Count"/>
+        </AnchorPane>
+    </TitledPane>
 </AnchorPane>

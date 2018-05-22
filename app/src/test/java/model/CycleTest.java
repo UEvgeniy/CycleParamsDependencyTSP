@@ -1,12 +1,7 @@
 package model;
 
-import control.Parameters;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.lang.reflect.Constructor;
-
-import static org.junit.Assert.*;
 
 public class CycleTest {
 

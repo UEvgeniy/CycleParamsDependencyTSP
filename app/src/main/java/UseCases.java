@@ -1,21 +1,15 @@
 import control.*;
+import control.functionals.ReducedMatrixFunctional;
 import io.ObjReducedMatrixesLoader;
 import io.ObjReducedMatrixesSaver;
 import io.TxtComplexityLoader;
 import io.TxtMatrixLoader;
 import model.*;
-import util.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class UseCases {
 
@@ -64,7 +58,7 @@ public class UseCases {
     public static double experiment(
              Dataset<TSPReducedMatrix> dReduced,
              Dataset<Complexity> dComplexities,
-             ReducedMatrixParameter param,
+             ReducedMatrixFunctional param,
              Correlation correlation){
 
         BindedData<TSPReducedMatrix, Complexity> binded = bindDatasets(dReduced, dComplexities); // bind by IDs

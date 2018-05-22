@@ -1,5 +1,5 @@
-import control.Parameters;
 import control.PearsonCorrelation;
+import control.functionals.NumberOfCycles;
 import io.ObjReducedDatasetLoader;
 import model.Complexity;
 import model.Dataset;
@@ -41,7 +41,7 @@ public class Main {
             double res = UseCases.experiment(
                     dReduced,
                     dComplexity,
-                    Parameters::cyclesNum,
+                    new NumberOfCycles(),
                     new PearsonCorrelation());
 
             System.out.println(res);
