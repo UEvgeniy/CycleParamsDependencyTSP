@@ -10,24 +10,23 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import model.BindedData;
 import model.Complexity;
 import model.Dataset;
 import model.TSPReducedMatrix;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 public class Controller {
 
     /************************* Fields *************************/
-    private static final String INITIAL_BROWSE_PATH = "C://";
     private Dataset<TSPReducedMatrix> reducedMatrixDataset;
     private Dataset<Complexity> complexityDataset;
 
@@ -45,7 +44,7 @@ public class Controller {
     @FXML
     public TitledPane paneExport;
     public ComboBox<ExportDataType> cbExportData;
-    public Button  btnBrSave;
+    public Button btnBrowseExport;
     public TextField tfSave;
 
     // Correlation coefficient
@@ -56,17 +55,19 @@ public class Controller {
 
     /*********************** Properties ***********************/
 
-    private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fSaveData;
+    private ObjectProperty<File> fLoadMatrixes, fLoadComplexity, fExportData;
     private BooleanProperty subfolders;
-    private IntegerProperty loadIndex, saveIndex, size;
-    private Task<Dataset<TSPReducedMatrix>> task;
-
+    private IntegerProperty size;
+    private Map<ImportDataType, BiFunction<File, Boolean, Dataset<TSPReducedMatrix>>>  importTasks;
+    private Map<ImportDataType, DatasetLoader<TSPReducedMatrix>> xxx;
+    Task<Dataset<TSPReducedMatrix>> currentTask;
 
     /************************ Initialize **********************/
     public void initialize(){
         initComboboxes();
         initFieldsBindProperties();
         initControllersProperties();
+        initImportTasks();
     }
 
     private void initComboboxes(){
@@ -110,20 +111,21 @@ public class Controller {
         complexityDataset = new Dataset<>();
 
         fLoadMatrixes = new SimpleObjectProperty<>();
-        fSaveData = new SimpleObjectProperty<>();
+
+        fExportData = new SimpleObjectProperty<>();
         fLoadComplexity = new SimpleObjectProperty<>();
         subfolders = new SimpleBooleanProperty();
-        loadIndex = new SimpleIntegerProperty();
-        saveIndex = new SimpleIntegerProperty();
+
+
 
         size = new SimpleIntegerProperty(0);
 
+
         tfLoadMatrixes.textProperty().bind(fLoadMatrixes.asString());
         tfLoadComplexities.textProperty().bind(fLoadComplexity.asString());
-        tfSave.textProperty().bind(fSaveData.asString());
+        tfSave.textProperty().bind(fExportData.asString());
         subfolders.bind(cbSubfolders.selectedProperty());
-        loadIndex.bind(cbImportData.getSelectionModel().selectedIndexProperty());
-        saveIndex.bind(cbExportData.getSelectionModel().selectedIndexProperty());
+
         lblFolder.textProperty().bind(
                 Bindings.format("%s:", cbImportData.getSelectionModel().selectedItemProperty())
         );
@@ -134,11 +136,15 @@ public class Controller {
 
     private void initControllersProperties(){
         // Import
+        btnBrowseMatrixes.setOnAction(ImportCore.onBrowseMatrix(cbImportData.getValue(), fLoadMatrixes));
+        btnBrowseComplexities.setOnAction(ImportCore.onBrowseComplexity(fLoadComplexity));
+
         btnCancel.setVisible(false);
-        btnCancel.setOnAction(ImportCore.onCancel(task));
+        btnCancel.setOnAction(this::onCancel);
 
         // Export
         paneExport.setDisable(true);
+        btnBrowseExport.setOnAction(ExportCore.onBrowseExport(cbExportData.getValue(), fExportData));
 
         // Correlation
         paneCorrelation.setDisable(true);
@@ -167,86 +173,10 @@ public class Controller {
         };
 
         task.setOnSucceeded(event ->
-                UiUtils.alert(
-                        Alert.AlertType.INFORMATION,
-                        "Experiments compeleted",
-                        String.format("The result correlation is %1$,.2f", task.getValue()),
-                        ButtonType.OK)
+                UiUtils.Alerts.infoSuccessExperiment(task.getValue())
         );
 
         new Thread(task).start();
-    }
-
-    /**
-     * Browse button
-     */
-    public void onBrowse(ActionEvent actionEvent) {
-
-        Window win = ((Node) actionEvent.getSource()).getScene().getWindow();
-        Button sourse = (Button) actionEvent.getSource();
-        FileChooser.ExtensionFilter txt = UiUtils.initFilter("TXT file", "*.txt");
-        FileChooser.ExtensionFilter csv = UiUtils.initFilter("CSV file", "*.csv");
-        FileChooser.ExtensionFilter ds = UiUtils.initFilter("Dataset file", "*.ds");
-
-        if (sourse == btnBrowseMatrixes){
-            switch (loadIndex.get()){
-                case 0:
-                    browseDir(fLoadMatrixes, win);
-                    break;
-                case 1:
-                    browseDir(fLoadMatrixes, win);
-                    break;
-                case 2:
-                    browseFile(ds, fLoadMatrixes, win, true);
-                    break;
-            }
-        }
-        else if(sourse == btnBrowseComplexities){
-            browseFile(txt, fLoadComplexity, win, true);
-        }
-        else if (sourse == btnBrSave){
-            switch (saveIndex.get()){
-                case 0:
-                    browseFile(csv, fSaveData, win, false);
-                    break;
-                case 1:
-                    browseFile(txt, fSaveData, win, false);
-                    break;
-                case 2:
-                    browseDir(fSaveData, win);
-                    break;
-                case 3:
-                    browseFile(ds, fSaveData, win, false);
-                    break;
-                case 4:
-                    browseFile(csv, fSaveData, win, false);
-                    break;
-                case 5:
-                    browseFile(csv, fSaveData, win, false);
-            }
-        }
-    }
-    private void browseFile(FileChooser.ExtensionFilter filter, ObjectProperty<File> file,
-                            Window win, boolean isOpen){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File(INITIAL_BROWSE_PATH));
-        fileChooser.getExtensionFilters().add(filter);
-
-        file.setValue(isOpen ?
-                fileChooser.showOpenDialog(win) :
-                fileChooser.showSaveDialog(win));
-    }
-    private void browseDir(ObjectProperty<File> file, Window win){
-        DirectoryChooser dirChooser = new DirectoryChooser();
-        dirChooser.setInitialDirectory(new File(INITIAL_BROWSE_PATH));
-        file.setValue(dirChooser.showDialog(win));
-    }
-
-    /**
-     * ComboBox selected item
-     */
-    public void onLoadedDataSelected(ActionEvent actionEvent) {
-        fLoadMatrixes.setValue(null);
     }
 
     /**
@@ -255,103 +185,107 @@ public class Controller {
     public void onLoadData(ActionEvent actionEvent) {
         long start = System.currentTimeMillis();
 
-        Task<Dataset<Complexity>> complLoader = new Task<Dataset<Complexity>>() {
+        initLoadComplexity();
+
+ /*       Task<Void> task = new Task<Void>() {
             @Override
-            protected Dataset<Complexity> call() throws Exception {
-                return new TxtComplexityLoader(fLoadComplexity.get()).load();
+            protected void call() throws Exception {
+
+//                complexityDataset = new TxtComplexityLoader(fLoadComplexity.get()).load();
+//                reducedMatrixDataset = importTasks.get(cbImportData.getValue())
+//                        .apply(fLoadMatrixes.get(), subfolders.get()).getValue();
             }
-        };
-        addTaskHandlers(complLoader, true);
-        complLoader.setOnSucceeded(event -> complexityDataset = complLoader.getValue());
-        new Thread(complLoader).start();
+        };*/
 
-        // Inialize tasks
-        try {
-            initTask();
-        }
-        catch (NullPointerException e){
-            UiUtils.alert(
-                    Alert.AlertType.ERROR,
-                    "Some paths are null",
-                    "Please, fill all the paths",
-                    ButtonType.OK);
-            progressBar.progressProperty().unbind();
-            return;
-        }
+        //currentTask = importTasks.get(cbImportData.getValue())
+        //        .apply(fLoadMatrixes.get(), subfolders.get());
 
-        // Bind task to progress bar
-        progressBar.progressProperty().bind(task.progressProperty());
+        btnCancel.visibleProperty().bind(currentTask.runningProperty());
+        progressBar.progressProperty().bind(currentTask.progressProperty());
 
-        task.setOnSucceeded((e) -> {
-            btnCancel.setVisible(false);
-            reducedMatrixDataset = task.getValue();
-
-            if (reducedMatrixDataset == null || reducedMatrixDataset.size() == 0){
-                UiUtils.alert(Alert.AlertType.ERROR, "No data to load", "...", ButtonType.OK);
+        currentTask.setOnSucceeded(event -> {
+            reducedMatrixDataset = currentTask.getValue();
+            if (reducedMatrixDataset == null || reducedMatrixDataset.size() == 0 ||
+                    complexityDataset == null || complexityDataset.size() == 0){
+                UiUtils.Alerts.errorNothingToLoad();
                 return;
             }
-
             paneExport.setDisable(false);
             paneCorrelation.setDisable(false);
 
             size.setValue(reducedMatrixDataset.getKeys().size());
-            UiUtils.alert(
-                    Alert.AlertType.INFORMATION,
-                    "Datasets successfully loaded",
-                    String.format("%d elements loaded for %2$,.2f sec",
-                            reducedMatrixDataset.getKeys().size(),
-                            (double)(System.currentTimeMillis() - start) / 1000),
-                    ButtonType.OK);
+            UiUtils.Alerts.infoSuccessImport(currentTask.getValue().size(), 42.); // todo
         });
 
-        Thread t = new Thread(task);
+
+        currentTask.setOnCancelled( event ->{
+            UiUtils.Alerts.infoCancel();
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
+        });
+
+        currentTask.setOnFailed(event -> {
+            UiUtils.Alerts.errorNullPaths();
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
+        }); // todo change error msg
+
+        Thread t = new Thread(currentTask);
         t.setDaemon(true);
         t.start();
-        btnCancel.setVisible(true);
+    }
+
+    private void initLoadComplexity(){
+        Task<Dataset<Complexity>> complLoader = new TxtComplexityLoader(fLoadComplexity.get());
+
+        // todo catch illegalArgException
+
+        // todo make in sep method
+        complLoader.setOnCancelled( event ->
+                UiUtils.Alerts.infoCancel());
+
+        complLoader.setOnFailed(event ->
+                UiUtils.Alerts.errorNullPaths());
+
+        complLoader.setOnSucceeded(event -> {
+            complexityDataset = complLoader.getValue(); });
+
+        new Thread(complLoader).start();
     }
 
 
+    // Cancel
+    private void onCancel(ActionEvent actionEvent){
+        if (currentTask != null && currentTask.isRunning())
+            currentTask.cancel();
+    }
 
     /**
      * Extra method for creating and adding handlers to Task
      */
-    private void initTask(){
-        switch (loadIndex.get()){
-            case 0:
-                task = new TxtMatrixLoader(fLoadMatrixes.get(), subfolders.get()){
-                  @Override
-                  protected Dataset<TSPReducedMatrix> call() throws Exception {
-                      return TSPConverter.toReducedDataset(load(), ReducingOrder.RowsColumns);
-                  }
-                };
-                break;
-            case 1:
-                task = new ObjReducedMatrixesLoader(fLoadMatrixes.get(), subfolders.get()){
-                    @Override
-                    protected Dataset<TSPReducedMatrix> call() throws Exception {
-                        return load();
+    private void initImportTasks(){
+        importTasks = new HashMap<>();
+        importTasks.put(ImportDataType.TXT_MATRIXES, ((file, aBoolean) ->
+                {
+                    Dataset<TSPReducedMatrix> res = null;
+                    try {
+                        res = TSPConverter.toReducedDataset(new TxtMatrixLoader(file, aBoolean).load(),
+                                ReducingOrder.RowsColumns);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
-                };
-                break;
-            case 2:
-                task = new ObjReducedDatasetLoader(fLoadMatrixes.get(), subfolders.get()){
-                    @Override
-                    protected Dataset<TSPReducedMatrix> call() throws Exception {
-                        return load();
-                    }
-                };
-                break;
-        }
-        addTaskHandlers(task, false);
+                    return res;
+                }));
+        //importTasks.put(ImportDataType.OBJ_MATRIXES,  ObjReducedMatrixesLoader);
+        //importTasks.put(ImportDataType.OBJ_DATASET, ObjReducedDatasetLoader::new);
+
+        xxx = new HashMap<>();
+        //xxx.put(ImportDataType.TXT_MATRIXES, TxtMatrixLoader::new);
     }
     private void addTaskHandlers(Task t, boolean interrupt){
         // Add handlers
         t.setOnFailed(event -> {
-            UiUtils.alert(
-                Alert.AlertType.ERROR,
-                "Some paths are invalid",
-                "Please, check all paths",
-                ButtonType.OK);
+            UiUtils.Alerts.errorInvalidPath();
             progressBar.progressProperty().unbind();
             progressBar.setProgress(0);
             if (interrupt){
@@ -364,11 +298,7 @@ public class Controller {
                     btnCancel.setVisible(false);
                     progressBar.progressProperty().unbind();
                     progressBar.setProgress(0);
-                    UiUtils.alert(
-                            Alert.AlertType.INFORMATION,
-                            "Loading data was cancelled",
-                            "",
-                            ButtonType.OK);
+                    UiUtils.Alerts.infoCancel();
                 }
         );
     }
@@ -378,12 +308,7 @@ public class Controller {
      */
     public void onSaveDataView(ActionEvent actionEvent) {
         if (reducedMatrixDataset.getKeys().isEmpty() || complexityDataset.getKeys().isEmpty()){
-            UiUtils.alert(
-                    Alert.AlertType.ERROR,
-                    "No data to save",
-                    "Please, load data first",
-                    ButtonType.OK
-            );
+            UiUtils.Alerts.errorNoData();
             return;
         }
         Task<Void> task = new Task<Void>() {
@@ -393,31 +318,31 @@ public class Controller {
                         new DataBinder<>(reducedMatrixDataset, complexityDataset).bind();
 
                 PrintStream stream;
-                switch (saveIndex.get()){
-                    case 0:
-                        stream = new PrintStream(fSaveData.get());
-                        DataView.distrCyclesLen(bindedData, new PrintStream(fSaveData.get()), ";");
+                switch (cbExportData.getValue()){
+                    case DISTR_CYCLE_LEN:
+                        stream = new PrintStream(fExportData.get());
+                        DataView.distrCyclesLen(bindedData, new PrintStream(fExportData.get()), ";");
                         stream.close();
                         break;
-                    case 1:
-                        stream = new PrintStream(fSaveData.get());
-                        DataView.list(bindedData, new PrintStream(fSaveData.get()));
+                    case LIST:
+                        stream = new PrintStream(fExportData.get());
+                        DataView.list(bindedData, new PrintStream(fExportData.get()));
                         stream.close();
                         break;
-                    case 2:
-                        new ObjReducedMatrixesSaver(reducedMatrixDataset, fSaveData.get()).save();
+                    case SERIALIZE_MATRIXES:
+                        new ObjReducedMatrixesSaver(reducedMatrixDataset, fExportData.get()).save();
                         break;
-                    case 3:
-                        new ObjReducedDatasetSaver(reducedMatrixDataset, fSaveData.get()).save();
+                    case SERIALIZE_DATASET:
+                        new ObjReducedDatasetSaver(reducedMatrixDataset, fExportData.get()).save();
                         break;
-                    case 4:
-                        stream = new PrintStream(fSaveData.get());
-                        DataView.dot_diagram(bindedData, new PrintStream(fSaveData.get()));
+                    case TABLE_FUNCTIONS:
+                        stream = new PrintStream(fExportData.get());
+                        DataView.dot_diagram(bindedData, new PrintStream(fExportData.get()));
                         stream.close();
                         break;
-                    case 5:
-                        stream = new PrintStream(fSaveData.get());
-                        DataView.distrCyclesToCities(bindedData, new PrintStream(fSaveData.get()), ";");
+                    case DISTR_CYCLE_TO_CITY:
+                        stream = new PrintStream(fExportData.get());
+                        DataView.distrCyclesToCities(bindedData, new PrintStream(fExportData.get()), ";");
                         stream.close();
                         break;
                 }
@@ -425,12 +350,7 @@ public class Controller {
             }
         };
 
-        task.setOnSucceeded(event -> UiUtils.alert(
-                Alert.AlertType.INFORMATION,
-                "Data saved",
-                "Data saved in file " + fSaveData.get().getName(),
-                ButtonType.OK
-        ));
+        task.setOnSucceeded(event -> UiUtils.Alerts.infoSuccessExport(fExportData.get()));
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();

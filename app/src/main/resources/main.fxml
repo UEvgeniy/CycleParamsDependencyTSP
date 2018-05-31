@@ -20,7 +20,7 @@
                     <Insets left="10.0"/>
                 </padding>
             </Label>
-            <ComboBox fx:id="cbImportData" layoutX="155.0" layoutY="13.0" onAction="#onLoadedDataSelected"
+            <ComboBox fx:id="cbImportData" layoutX="155.0" layoutY="13.0"
                       prefWidth="150.0" promptText="Type of data" style="-fx-background-radius: 10;"/>
             <CheckBox fx:id="cbSubfolders" layoutX="322.0" layoutY="19.0" mnemonicParsing="false"
                       text="Include subfolders"/>
@@ -30,7 +30,7 @@
                 </padding>
             </Label>
             <TextField fx:id="tfLoadMatrixes" editable="false" layoutX="155.0" layoutY="57.0" promptText="Folder path..."/>
-            <Button fx:id="btnBrowseMatrixes" layoutX="326.0" layoutY="57.0" mnemonicParsing="false" onAction="#onBrowse"
+            <Button fx:id="btnBrowseMatrixes" layoutX="326.0" layoutY="57.0" mnemonicParsing="false"
                     style="-fx-background-radius: 10;" text="Browse..."/>
             <Label fx:id="lblFile" layoutY="104.0" text="Complexity path:">
                 <padding>
@@ -39,13 +39,13 @@
             </Label>
             <TextField fx:id="tfLoadComplexities" editable="false" layoutX="155.0" layoutY="98.0"
                        promptText="File path..."/>
-            <Button fx:id="btnBrowseComplexities" layoutX="326.0" layoutY="98.0" mnemonicParsing="false" onAction="#onBrowse"
+            <Button fx:id="btnBrowseComplexities" layoutX="326.0" layoutY="98.0" mnemonicParsing="false"
                     style="-fx-background-radius: 10;" text="Browse..."/>
             <Button fx:id="btnImport" layoutX="155.0" layoutY="140.0" mnemonicParsing="false" onAction="#onLoadData"
                     prefWidth="150.0" style="-fx-background-radius: 10;" text="Load"/>
             <Button fx:id="btnCancel" layoutX="8.0" layoutY="140.0" mnemonicParsing="false"
                     prefWidth="144.0" style="-fx-background-radius: 10;" text="Cancel"/>
-            <ProgressBar fx:id="progressBar" layoutX="323.0" layoutY="146.0" prefWidth="150.0" progress="0.0"/>
+            <ProgressBar fx:id="progressBar" layoutX="323.0" layoutY="146.0" prefWidth="150.0" progress="0.0" />
             <Label fx:id="lblNumEl" layoutX="489.0" layoutY="146.0" text="0 matrixes"/>
         </AnchorPane>
     </TitledPane>
@@ -64,8 +64,8 @@
             </ComboBox>
             <TextField fx:id="tfSave" editable="false" layoutX="197.0" layoutY="18.0" prefWidth="212.0"
                        promptText="File path..."/>
-            <Button fx:id="btnBrSave" layoutX="416.0" layoutY="18.0" mnemonicParsing="false"
-                    onAction="#onBrowse" style="-fx-background-radius: 10;" text="Browse..."/>
+            <Button fx:id="btnBrowseExport" layoutX="416.0" layoutY="18.0" mnemonicParsing="false"
+                    style="-fx-background-radius: 10;" text="Browse..."/>
             <Button layoutX="498.0" layoutY="18.0" mnemonicParsing="false" onAction="#onSaveDataView"
                     prefWidth="100.0" style="-fx-background-radius: 10;" text="Export"/>
         </AnchorPane>

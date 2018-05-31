@@ -7,22 +7,18 @@ import java.util.Set;
 
 public class Dataset<T> implements Serializable {
 
-
     private static final long serialVersionUID = -868575552503575995L;
     private Map<Integer, T> dataMap;
-
 
     public Dataset(){
         dataMap = new HashMap<>();
     }
 
     public void add(int id, T object){
-
         if (dataMap.containsKey(id)){
             String EXC = "Id " + id + " is already exists in the dataset.";
             throw new IllegalArgumentException(EXC);
         }
-
         dataMap.put(id, object);
     }
 

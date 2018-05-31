@@ -1,5 +1,6 @@
 package io;
 
+import control.ReducingOrder;
 import control.TSPConverter;
 import javafx.concurrent.Task;
 import model.Dataset;
@@ -74,6 +75,6 @@ public class TxtMatrixLoader extends Task<Dataset<TSPReducedMatrix>> implements 
 
     @Override
     protected Dataset<TSPReducedMatrix> call() throws Exception {
-        return null;
+        return TSPConverter.toReducedDataset(this.load(), ReducingOrder.RowsColumns);
     }
 }
