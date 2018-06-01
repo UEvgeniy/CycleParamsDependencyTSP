@@ -18,7 +18,7 @@ class UiUtils {
     static final FileChooser.ExtensionFilter FC_CSV =
             UiUtils.initFilter("CSV file", "*.csv");
 
-    //private static final String INITIAL_BROWSE_PATH = "C://"; todo path
+    //private static final String INITIAL_BROWSE_PATH = "C:\\Users\\Urnyshev-ED\\train";
     private static final String INITIAL_BROWSE_PATH = "D://vkr//data";
 
     static class Alerts{
@@ -27,14 +27,9 @@ class UiUtils {
                     "", ButtonType.OK);
         }
 
-        static void errorInvalidPath(){
-            alert(Alert.AlertType.ERROR, "Some paths are invalid",
-                    "Please, check all paths", ButtonType.OK);
-        }
-
-        static void errorNoData(){
-            alert(Alert.AlertType.ERROR, "No data to save",
-                    "Please, load data first", ButtonType.OK);
+        static void errorFileInvalid(String message){
+            alert(Alert.AlertType.ERROR, "Some files are invalid",
+                    "Please, check the files: " + message, ButtonType.OK);
         }
 
         static void infoSuccessExport(File file){
@@ -53,10 +48,16 @@ class UiUtils {
                     "Please, fill all the paths", ButtonType.OK);
         }
 
-        static void errorNothingToLoad(){
-            alert(Alert.AlertType.ERROR, "No data to load",
-                    "...", ButtonType.OK);
+        static void errorNothingToLoad(String datasetName){
+            alert(Alert.AlertType.ERROR, "Dataset is empty",
+                    "Dataset ".concat(datasetName).concat(" has no elements. Experiments cannot be executed"), ButtonType.OK);
         }
+
+        static void errorIO(String message){
+            alert(Alert.AlertType.ERROR, "Problems with file",
+                    "result cannot be saved. " + message, ButtonType.OK);
+        }
+
 
         static void infoSuccessExperiment(double value){
             alert(Alert.AlertType.INFORMATION, "Experiments compeleted",

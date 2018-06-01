@@ -1,6 +1,6 @@
 package ui;
 
-public enum ExportDataType {
+public enum ExportDataType implements DataType{
 
     DISTR_CYCLE_LEN("Distribution: cycles length"),
     DISTR_CYCLE_TO_CITY("Distribution: cycles to cities"),

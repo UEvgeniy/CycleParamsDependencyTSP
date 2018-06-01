@@ -1,7 +1,10 @@
 package model;
 
-public class Cycle{
+import java.io.Serializable;
 
+public class Cycle implements Serializable {
+
+    private static final long serialVersionUID = 1191201193459012311L;
     private final Integer[] cycle;
 
     public Integer[] getCycle(){
