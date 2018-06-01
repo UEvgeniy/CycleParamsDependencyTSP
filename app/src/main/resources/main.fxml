@@ -60,7 +60,6 @@
                      <TextField fx:id="tfSave" editable="false" layoutX="220.0" layoutY="18.0" prefHeight="25.0" prefWidth="233.0" promptText="File path..." />
                      <Button fx:id="btnBrowseExport" layoutX="437.0" layoutY="18.0" mnemonicParsing="false" style="-fx-background-radius: 10;" text="Browse..." />
                      <Button fx:id="btnExport" layoutX="515.0" layoutY="18.0" mnemonicParsing="false" onAction="#onExport" prefWidth="100.0" style="-fx-background-radius: 10;" text="Export" />
-                  <ProgressBar layoutX="437.0" layoutY="17.0" prefWidth="200.0" progress="0.0" />
                  </children>
               </AnchorPane>
           </content>
