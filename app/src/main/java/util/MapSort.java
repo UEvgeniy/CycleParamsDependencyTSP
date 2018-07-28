@@ -2,9 +2,9 @@ package util;
 
 import java.util.*;
 
-public class Utils {
+public class MapSort {
 
-    private Utils(){
+    private MapSort(){
 
     }
 

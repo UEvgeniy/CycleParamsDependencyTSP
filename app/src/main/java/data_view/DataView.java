@@ -1,11 +1,11 @@
 package data_view;
 
-import control.Parameters;
+import control.functionals.*;
 import model.BindedData;
 import model.Complexity;
 import model.Cycle;
 import model.TSPReducedMatrix;
-import util.Utils;
+import util.MapSort;
 
 import java.io.PrintStream;
 import java.util.Comparator;
@@ -50,7 +50,7 @@ public class DataView {
             Map<Integer, Integer> map = countCycles(b.matr);
             ps.print(". Size: "+ map.values().stream().mapToInt(Integer::intValue).sum() + ": ");
 
-            map = Utils.sort(map, Utils.Compare::byKeys);
+            map = MapSort.sort(map, MapSort.Compare::byKeys);
             for (Integer key: map.keySet()){
                 ps.print("\'" + key + "\'-" + map.get(key) + "шт; ");
             }
@@ -77,7 +77,7 @@ public class DataView {
             ps.print(sep);
 
             Map<Integer, Integer> map = countCycles(b.matr);
-            map = Utils.sort(map, Utils.Compare::byKeys);
+            map = MapSort.sort(map, MapSort.Compare::byKeys);
 
 
             for (int key = 0; key < b.matr.size(); key++){ // todo change
@@ -97,14 +97,15 @@ public class DataView {
                 .sorted(Comparator.comparingInt(b -> b.complexity))              // Sort using a Comparator
                 .collect(Collectors.toList());
 
-        ps.println("Complexity;Num;Min;Max;Avg;Dev;");
+        ps.println("Complexity;Num;Min;Max;Avg;Dev;Cons");
         for (Binded b : sorted){
             ps.print(String.format("%d;", b.complexity));
-            ps.print(String.format("%1$,.2f;", Parameters.cyclesNum(b.matr)));
-            ps.print(String.format("%1$,.2f;", Parameters.minCycleLength(b.matr)));
-            ps.print(String.format("%1$,.2f;", Parameters.maxCycleLength(b.matr)));
-            ps.print(String.format("%1$,.2f;", Parameters.averageCycleLength(b.matr)));
-            ps.println(String.format("%1$,.2f;", Parameters.deviation(b.matr)));
+            ps.print(String.format("%1$,.2f;", new NumberOfCycles().apply(b.matr)));
+            ps.print(String.format("%1$,.2f;", new MinCycleLength().apply(b.matr)));
+            ps.print(String.format("%1$,.2f;", new MaxCycleLength().apply(b.matr)));
+            ps.print(String.format("%1$,.2f;", new AvgCycleLength().apply(b.matr)));
+            ps.print(String.format("%1$,.2f;", new CycleLenDeviation().apply(b.matr)));
+            ps.println(String.format("%1$,.2f;", new AvgNumCyclesThroughCity().apply(b.matr)));
         }
 
     }
@@ -124,7 +125,7 @@ public class DataView {
             ps.print(sep);
 
             Map<Integer, Integer> map = countCyclesOnOneCity(b.matr);
-            map = Utils.sort(map, Utils.Compare::byKeys);
+            map = MapSort.sort(map, MapSort.Compare::byKeys);
 
 
             for (int key = 1; key < b.matr.size() * 2; key++){ // todo change
@@ -141,7 +142,8 @@ public class DataView {
     // Отображение {Длина цикла} -> {Их количество в индивидуальной TSP}
     private static Map<Integer, Integer> countCycles(TSPReducedMatrix rm){
         Map<Integer, Integer> map = new HashMap<>();
-        List<Integer> cycles = Parameters.cycleLength(rm);
+        ReducedMatrixFunctional mock = (matrix -> 0.);
+        List<Integer> cycles = mock.cycleLength(rm);
 
         for (Integer j : cycles){
             if (map.containsKey(j)){

@@ -1,5 +1,6 @@
 package control;
 
+import control.functionals.ReducedMatrixFunctional;
 import model.*;
 
 import java.util.*;
@@ -119,7 +120,7 @@ public class TSPConverter {
     }
 
     public static List<Double> toParamsDataset(List<TSPReducedMatrix> dataset,
-                                               ReducedMatrixParameter param){
+                                               ReducedMatrixFunctional param){
         return dataset.stream().map(param).collect(Collectors.toList());
     }
 

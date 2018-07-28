@@ -1,20 +1,19 @@
-package control;
+package control.functionals;
 
 import model.TSPReducedMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ParametersTest {
+public class ReducedMatrixFunctionalTest {
 
     // Tested method:
-    // private static List<Integer> getCycles(model.TSPReducedMatrix matrix)
+    // private static List<Integer> cycleLength(model.TSPReducedMatrix matrix)
 
     @Test
-    public void testGetCycles() {
+    public void testCycleLen() {
 
         /// Test 1. Several cycles ///
         List<Integer>[] minRoutes = formMinRoute(
@@ -75,8 +74,11 @@ public class ParametersTest {
     /// Private methods
     private void testGettingCycle(List<Integer>[] minRoutes, Integer... expected) {
 
+        // Object for testing default method in interface
+        ReducedMatrixFunctional mock = matrix -> 0.;
+
         TSPReducedMatrix reducedMatrix = new TSPReducedMatrix(minRoutes);
-        List<Integer> actual = Parameters.cycleLength(reducedMatrix);
+        List<Integer> actual = mock.cycleLength(reducedMatrix);
 
         Assert.assertEquals("Number of cycles is not equal", expected.length, actual.size());
 

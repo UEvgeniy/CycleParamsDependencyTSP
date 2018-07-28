@@ -62,6 +62,6 @@ public class ObjReducedMatrixesLoader extends Task<Dataset<TSPReducedMatrix>>
 
     @Override
     protected Dataset<TSPReducedMatrix> call() throws Exception {
-        return null;
+         return load();
     }
 }
