@@ -20,28 +20,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Console app launch -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.5.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>Main</mainClass>
-                    <arguments>
-                        <argument>D:\VKR\data\obj</argument>
-                        <argument>D:\VKR\data\35.txt</argument>
-                        <argument>D:\VKR\data\best.b</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
-
             <!-- JavaFX -->
             <plugin>
                 <groupId>com.zenjava</groupId>
@@ -51,11 +29,7 @@
                     <mainClass>ui.MainApp</mainClass>
                 </configuration>
             </plugin>
-
-
-
         </plugins>
-
     </build>
 
     <dependencies>
@@ -64,7 +38,6 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
         </dependency>
-
     </dependencies>
 
     <properties>
